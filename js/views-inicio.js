@@ -22,42 +22,40 @@ window.VIEWS = window.VIEWS || {};
   Object.assign(V, { _fmtY: fmtY, _linkAtivo: linkAtivo, _fonte: fonte, _kpi: kpi, _sub: sub, _logo: logo, _hrefItem: hrefItem, _corItem: corItem });
 
   // ---------- Tabela de ativos (Carteira → Todos os investimentos) ----------
-  function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
-  // Preço médio simulado: média das cotações desde uma data de compra fictícia, estável por investidor e ativo
-  function precoMedio(id, x) {
-    const h = hash(id + x.cod);
-    if (x.tipo === "cripto") return CR.precoEm(x.cod, null, 60 + (h % 300));
-    const s = M.cotacoes[x.cod].serie, ini = Math.floor(((h % 80) / 100) * s.length);
-    return (s.slice(ini).reduce((a, p) => a + p[1], 0) / (s.length - ini)) * (1 + (((h >> 3) % 9) - 4) / 100);
-  }
+  // Preço médio, data de entrada e proventos vêm de RENT.posicao (simulados, estáveis por investidor e ativo)
   const GRUPOS_RV = [["Ações", (x) => x.tipo === "b3" && x.sub === "Acoes"], ["FIIs", (x) => x.tipo === "b3" && x.sub === "FII"], ["ETFs", (x) => x.tipo === "b3" && x.sub === "ETF"], ["ETFs de Criptomoedas", (x) => x.tipo === "cripto"]];
-  const COLS = [["Ativo"], ["Preço médio", 1], ["Preço atual", 1], ["Quant.", 1], ["Patr. atual", 1], ["Var. hoje", 1], ["Var. total", 1], ["% na cart.", 1]];
+  const COLS = [["Ativo"], ["Preço médio", 1], ["Preço atual", 1], ["Quant.", 1], ["Patr. atual", 1], ["Var. hoje", 1], ["Var. total", 1, "Só a variação do preço desde a compra (preço atual ÷ preço médio)."], ["Proventos", 1, "Dividendos, JCP e rendimentos já pagos desde que você tem o ativo (data-com a partir da compra)."], ["Rent. c/ proventos", 1, "Variação do preço + proventos recebidos, sobre o preço médio. Ex.: subiu 10% e pagou 10% em proventos = 20%."], ["% na cart.", 1]];
   const preco = (v) => "R$ " + U.num(v, 2);
   const duo = (topo, v) => `${topo}<small>${U.sinal(v)}</small>`;
+  const naoDistribui = '<span class="muted">—</span><small class="muted">não distribui</small>';
 
   function tabelaAtivos(id, titulo, g, total) {
     if (!g.length) return "";
     const ls = g.map((x) => {
-      const pm = precoMedio(id, x), dia = x.tipo === "cripto" ? CR.MOEDAS[x.cod].ch.d1 : M.cotacoes[x.cod].var;
-      return { x, pm, dia, hoje: x.valor - x.valor / (1 + dia / 100), tot: x.valor - pm * x.q, totPct: (x.preco / pm - 1) * 100 };
+      const rp = window.RENT.posicao(id, x), dia = x.tipo === "cripto" ? CR.MOEDAS[x.cod].ch.d1 : M.cotacoes[x.cod].var, custo = rp.pm * x.q;
+      return { x, rp, custo, dia, hoje: x.valor - x.valor / (1 + dia / 100), tot: x.valor - custo };
     });
     const soma = (f) => ls.reduce((a, l) => a + f(l), 0);
-    const valor = soma((l) => l.x.valor), custo = soma((l) => l.pm * l.x.q), hoje = soma((l) => l.hoje), tot = soma((l) => l.tot), pct = (valor / total) * 100;
+    const valor = soma((l) => l.x.valor), custo = soma((l) => l.custo), hoje = soma((l) => l.hoje), tot = soma((l) => l.tot), prov = soma((l) => l.rp.provR), pct = (valor / total) * 100;
+    const algumDistribui = ls.some((l) => l.rp.distribui);
     const linhas = ls.map((l) => {
-      const { x } = l, tk = U.esc(x.cod);
+      const { x, rp } = l, tk = U.esc(x.cod);
       const menu = `<details class="acao"><summary aria-label="Opções para ${tk}">⋮</summary><div class="acao-menu">${x.tipo === "b3" ? `<a href="#/ativo/${U.slug(x.cod)}">Ver ficha do ativo</a>` : ""}<a href="#/mercado/meus/${U.slug(x.cod)}">Ver gráfico</a><button type="button" data-ask="Como está meu investimento em ${tk}?">✦ Perguntar à IA</button></div></details>`;
-      const ord = [x.cod, l.pm, l.totPct, x.q, x.valor, l.hoje, l.tot, x.pct];
+      const ord = [x.cod, rp.pm, rp.preco, x.q, x.valor, l.hoje, l.tot, rp.provR, rp.distribui ? rp.total : -1e9, x.pct];
       return `<tr data-ord='${JSON.stringify(ord)}'><td><a class="tk-cell" href="${hrefItem(x)}" data-emp="${tk}">${logo(x, true)}<b>${tk}</b></a></td>
-        <td class="num">${preco(l.pm)}</td><td class="num">${duo(preco(x.preco), l.totPct)}</td><td class="num">${U.qtd(x.q)}</td><td class="num">${U.brl(x.valor)}</td>
-        <td class="num">${duo(U.brl(l.hoje), l.dia)}</td><td class="num">${duo(U.brl(l.tot), l.totPct)}</td><td class="num">${U.num(x.pct, 2)}%</td><td>${menu}</td></tr>`;
+        <td class="num">${preco(rp.pm)}${rp.entrada ? `<small class="muted">desde ${U.data(rp.entrada)}</small>` : ""}</td><td class="num">${duo(preco(x.preco), rp.preco)}</td><td class="num">${U.qtd(x.q)}</td><td class="num">${U.brl(x.valor)}</td>
+        <td class="num">${duo(U.brl(l.hoje), l.dia)}</td><td class="num">${duo(U.brl(l.tot), rp.preco)}</td>
+        <td class="num">${rp.distribui ? `${U.brl(rp.provR)}<small class="muted">${U.num(rp.provPct, 2)}% do preço médio</small>` : naoDistribui}</td>
+        <td class="num rent-prov">${rp.distribui ? duo(U.brl(l.tot + rp.provR), rp.total) : naoDistribui}</td><td class="num">${U.num(x.pct, 2)}%</td><td>${menu}</td></tr>`;
     }).join("");
     return `<section class="card section"><div class="grp-h">
         <div class="grp-t"><h2>${titulo}</h2><span class="muted">${g.length} ${g.length === 1 ? "ativo" : "ativos"}</span></div>
         <div class="grp-kpi"><span class="lbl">Variação total</span>${U.sinal(custo ? (tot / custo) * 100 : 0)}<span class="small">${U.brl(tot)}</span></div>
+        ${algumDistribui ? `<div class="grp-kpi"><span class="lbl">Com proventos</span>${U.sinal(custo ? ((tot + prov) / custo) * 100 : 0)}<span class="small">${U.brl(tot + prov)} · ${U.brl(prov)} em proventos</span></div>` : ""}
         <div class="grp-kpi"><span class="lbl">Variação hoje</span>${U.sinal((hoje / (valor - hoje)) * 100)}<span class="small">${U.brl(hoje)}</span></div>
         <div class="grp-kpi grp-tot"><span class="lbl">${U.brl(valor)}</span><b>${U.num(pct, 2)}% da carteira</b><div class="bar"><i style="width:${pct}%;background:var(--b3)"></i></div></div>
       </div>
-      <div class="tbl-wrap"><table class="tbl-ativos"><thead><tr>${COLS.map(([t, n], i) => `<th class="${n ? "num" : ""}"><button type="button" class="th-sort" data-col="${i}">${t} <span aria-hidden="true">↕</span></button></th>`).join("")}<th>Ação</th></tr></thead><tbody>${linhas}</tbody></table></div></section>`;
+      <div class="tbl-wrap"><table class="tbl-ativos"><thead><tr>${COLS.map(([t, n, info], i) => `<th class="${n ? "num" : ""}"><button type="button" class="th-sort" data-col="${i}">${t} <span aria-hidden="true">↕</span></button>${info ? U.info(info, t) : ""}</th>`).join("")}<th>Ação</th></tr></thead><tbody>${linhas}</tbody></table></div></section>`;
   }
 
   // Ordena a tabela pela coluna clicada (clicar de novo inverte)
@@ -81,7 +79,7 @@ window.VIEWS = window.VIEWS || {};
   function posLista(its, n, per) {
     const contrib = per ? Object.fromEntries(K.contribuicao(window.APP.id(), per).map((c) => [c.cod, c])) : {};
     return `<div class="pos-list">${its.slice(0, n).map((x) => { const c = contrib[x.cod]; return `<a class="pos" href="${hrefItem(x)}">${logo(x)}<div class="nm"><b${emp(x)}>${U.esc(x.tipo === "rf" ? x.nome : x.cod)}</b><span>${U.esc(x.tipo === "rf" ? (x.classe === "Fundos" ? "Fundos" : "Renda fixa") + " · " + x.instTxt : x.nome)}</span><div class="bar"><i style="width:${Math.max(2, x.pct)}%;background:${corItem(x)}"></i></div></div>
-      <div class="vl"><b>${U.brl(x.valor)}</b><span class="small muted">${U.num(x.pct, 1)}%</span>${c ? `<div>${U.sinal(c.pctVar)}</div>` : ""}</div></a>`; }).join("")}</div>`;
+      <div class="vl"><b>${U.brl(x.valor)}</b><span class="small muted">${U.num(x.pct, 1)}%</span>${c ? `<div>${U.sinal(c.pctVar)}</div>${c.provR ? `<div class="small" title="Com os proventos recebidos no período">c/ prov. ${U.sinal(c.pctProv)}</div>` : ""}` : ""}</div></a>`; }).join("")}</div>`;
   }
 
   // =============== INÍCIO ===============
@@ -160,9 +158,12 @@ window.VIEWS = window.VIEWS || {};
         <section class="card section"><div class="card-h"><div><h2>Por tipo de produto</h2></div></div><div class="chart" id="chTipos"></div></section>`;
         ctx._tipos = tipos;
       } else if (aba === "rentabilidade") {
-        corpo = `<section class="card"><div class="card-h"><div><h2>Rentabilidade × CDI × Ibovespa</h2><div class="sub">Últimos 12 meses, já descontando aportes e resgates (método Dietz) ${U.info("Retorno mensal = (valor final − valor inicial − aportes) ÷ (valor inicial + metade dos aportes), meses encadeados. CDI e Ibovespa simulados neste protótipo.")}</div></div></div><div class="chart" id="chRent"></div></section>
-          <div class="grid g3 section">${kpi("Sua carteira (12m)", U.sinal(r.rent.at(-1)[1]), "Rentabilidade acumulada")}${kpi("CDI (12m)", U.sinal(r.cdi.at(-1)[1]), "Referência de renda fixa")}${kpi("Ibovespa (12m)", U.sinal(r.ibov.at(-1)[1]), "Referência de ações")}</div>
-          <section class="card section"><div class="card-h"><div><h2>Quem ganhou e quem perdeu</h2><div class="sub">Contribuição de cada investimento ${perTxt[p]}</div></div><div class="seg" role="group">${Object.keys(K.PERIODOS).map((k) => `<button data-per="${k}" aria-pressed="${k === p}">${k}</button>`).join("")}</div></div><div id="chContrib2"></div></section>`;
+        const comProv = U.store.get("contrib:prov", true);
+        corpo = `<section class="card"><div class="card-h"><div><h2>Rentabilidade × índices</h2><div class="sub">Últimos 12 meses, já descontando aportes e resgates (método Dietz) ${U.info("Retorno mensal = (valor final − valor inicial − aportes) ÷ (valor inicial + metade dos aportes), meses encadeados. A linha “com proventos” soma os dividendos, JCP e rendimentos recebidos no mês. Índices simulados neste protótipo; S&P 500 em reais, pela cota do IVVB11.")}</div></div></div>
+            <div class="idx-sel" role="group" aria-label="Comparar com"><span class="lbl">Comparar com:</span>${Object.entries(window.RENT.INDICES).map(([k, ix]) => `<button type="button" class="chip-tg" data-idx="${k}" aria-pressed="false" title="${ix.desc}"><i style="background:${ix.cor}"></i>${ix.nome}</button>`).join("")}</div>
+            <div class="chart" id="chRent"></div></section>
+          <div class="grid g4 section" id="kpiRent"></div>
+          <section class="card section"><div class="card-h"><div><h2>Quem ganhou e quem perdeu</h2><div class="sub">Contribuição de cada investimento ${perTxt[p]}${comProv ? ", somando os proventos" : ""}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" role="group" aria-label="Proventos"><button data-cprov="0" aria-pressed="${!comProv}">Só preço</button><button data-cprov="1" aria-pressed="${comProv}">Com proventos</button></div><div class="seg" role="group">${Object.keys(K.PERIODOS).map((k) => `<button data-per="${k}" aria-pressed="${k === p}">${k}</button>`).join("")}</div></div></div><div id="chContrib2"></div></section>`;
       } else if (aba === "ativos") {
         const total = its.reduce((a, x) => a + x.valor, 0);
         const grupos = [["Tesouro Direto", (x) => x.classe === "Tesouro Direto"], ["Renda fixa e fundos", (x) => x.tipo === "rf"]];
@@ -183,8 +184,25 @@ window.VIEWS = window.VIEWS || {};
         CH.barras(document.getElementById("chTipos"), t.map(([k, v]) => ({ rotulo: k, valores: [v] })), [{ nome: "Valor", cor: "#06377b" }], { fmtY, altura: 230 });
       }
       if (aba === "rentabilidade") {
-        CH.linha(document.getElementById("chRent"), { series: [{ nome: "Sua carteira", cor: "#06377b", pontos: r.rent }, { nome: "CDI", cor: "#0e7c86", pontos: r.cdi, tracejado: true }, { nome: "Ibovespa", cor: "#c27c0e", pontos: r.ibov, tracejado: true }], fmtY: fmtPctY, fmtX: (d, l) => (l ? U.data(d) : U.mesAno(d)), altura: 300 });
-        const ct = K.contribuicao(id, per()); barrasH(document.getElementById("chContrib2"), ct.map((c) => ({ rot: c.tipo === "rf" ? c.nome : c.cod, v: c.ganho })));
+        // índices escolhidos (vários de uma vez ou só um); a escolha fica salva neste navegador
+        const RT = window.RENT, datas = r.rent.map((p) => p[0]);
+        const desenha = () => {
+          const sel = U.store.get("rent:idx", ["cdi", "ibov"]).filter((k) => RT.INDICES[k]);
+          document.querySelectorAll("[data-idx]").forEach((b) => b.setAttribute("aria-pressed", String(sel.includes(b.dataset.idx))));
+          const linhas = [{ nome: "Sua carteira", cor: "#06377b", pontos: r.rent, desc: "Só a variação do patrimônio" }, { nome: "Sua carteira + proventos", cor: "#137a43", pontos: r.rentProv, desc: "Somando dividendos, JCP e rendimentos" }]
+            .concat(sel.map((k) => ({ nome: RT.INDICES[k].nome, cor: RT.INDICES[k].cor, pontos: RT.acumulado(k, datas), tracejado: true, desc: RT.INDICES[k].desc })));
+          CH.linha(document.getElementById("chRent"), { series: linhas, fmtY: fmtPctY, fmtX: (d, l) => (l ? U.data(d) : U.mesAno(d)), altura: 300 });
+          document.getElementById("kpiRent").innerHTML = linhas.map((l) => kpi(`<i class="kpi-dot" style="background:${l.cor}"></i>${l.nome} (12m)`, U.sinal(l.pontos.at(-1)[1]), l.desc)).join("");
+        };
+        document.querySelectorAll("[data-idx]").forEach((b) => b.addEventListener("click", () => {
+          const sel = U.store.get("rent:idx", ["cdi", "ibov"]), k = b.dataset.idx;
+          U.store.set("rent:idx", sel.includes(k) ? sel.filter((x) => x !== k) : sel.concat(k)); desenha();
+        }));
+        desenha();
+        const comProv = U.store.get("contrib:prov", true);
+        const ct = K.contribuicao(id, per()).map((c) => Object.assign(c, { v: comProv ? c.ganhoProv : c.ganho })).sort((a, b) => b.v - a.v);
+        barrasH(document.getElementById("chContrib2"), ct.map((c) => ({ rot: c.tipo === "rf" ? c.nome : c.cod, v: c.v })));
+        document.querySelectorAll("[data-cprov]").forEach((b) => b.addEventListener("click", () => { U.store.set("contrib:prov", b.dataset.cprov === "1"); window.APP.render(); }));
         document.querySelectorAll("[data-per]").forEach((b) => b.addEventListener("click", () => { U.store.set("periodo", b.dataset.per); window.APP.render(); }));
       }
       if (aba === "ativos") ordenaTabelas();

@@ -78,6 +78,7 @@ js/catalogo.js        ativos, conteúdos educativos, questionário
 js/mercado.js         market data SIMULADO (determinístico) + eventos
 js/carteira.js        cálculos por investidor (Dietz, proventos, pendências)
 js/cripto.js          CRIPTO (ETFs de Criptomoedas da B3) + CONSOL (consolidação e períodos)
+js/rentabilidade.js   RENT: rentabilidade com/sem proventos e índices de referência
 js/feed.js            pontuação do feed e do perfil
 js/views-*.js         telas · js/videos.js player · js/chat.js assistente
 js/tutoriais.js       boas-vindas, tutoriais e motor de tour guiado
@@ -171,10 +172,11 @@ VideoProgresso  { videoId, concluidoEm, quizAcertou: bool }   // XP = 10 por ví
       <section class="blk" id="calculos"><h2>Regras de cálculo</h2>
         <h3>Saldo total</h3><p>Σ valor de todas as posições de todas as contas na data-base.</p>
         <h3>Ganho/perda no período (Início)</h3><p>Variação de mercado da carteira <b>atual</b>: <code>ganho = V(hoje) − V(hoje − período)</code>, reavaliando cada posição pelo preço da data inicial; renda fixa reconstruída pela taxa do produto. <code>ganhoPct = ganho ÷ V(início)</code>. Não inclui aportes. Períodos: 7D=5, 30D=21, 6M=126, 12M=251 dias úteis.</p>
-        <h3>Rentabilidade (Carteira → Rentabilidade)</h3><p>Dietz modificado mensal encadeado: <code>r = (V₁ − V₀ − F) ÷ (V₀ + F/2)</code>; comparado a CDI e Ibovespa no mesmo período.</p>
+        <h3>Rentabilidade (Carteira → Rentabilidade)</h3><p>Dietz modificado mensal encadeado: <code>r = (V₁ − V₀ − F) ÷ (V₀ + F/2)</code>; comparado, à escolha do usuário, a CDI, Ibovespa, IFIX, IPCA, Poupança (0,5% a.m. + TR) e S&amp;P 500 em reais. A curva “com proventos” soma ao retorno do mês os proventos recebidos: <code>r = (V₁ − V₀ − F + P) ÷ (V₀ + F/2)</code>.</p>
+        <h3>Rentabilidade com proventos (por ativo)</h3><p>Soma simples, sem reinvestir: <code>com proventos = variação do preço + Σ proventos por cota ÷ preço inicial</code>. Ex.: subiu 10% e pagou 10% → 20%. <b>Posição</b>: desde a data de entrada, sobre o preço médio, contando proventos com data-com a partir da entrada e já pagos. <b>Ativo em 12 meses</b> (ficha, comparador, acompanhamento): proventos com data ex no período. Ativos que não distribuem mostram só a variação do preço.</p>
         <h3>Contribuição</h3><p>Ganho de cada posição no período; exibido em barras divergentes (verde/vermelho + seta + valor, nunca só cor).</p>
         <h3>Proventos</h3><p>Pago, anunciado e estimado sempre separados; estimativas nunca entram em totais.</p>
-        <p>Implementação de referência: <code>js/cripto.js → CONSOL</code> e <code>js/carteira.js</code>.</p>
+        <p>Implementação de referência: <code>js/cripto.js → CONSOL</code>, <code>js/carteira.js</code> e <code>js/rentabilidade.js → RENT</code>.</p>
       </section>
 
       <section class="blk" id="feed"><h2>Feed e perfil</h2>

@@ -9,6 +9,17 @@
   const watchKey = (id) => "watch:" + id;
   const getWatch = (id) => U.store.get(watchKey(id), []);
   const setWatch = (id, w) => U.store.set(watchKey(id), w);
+  const RT = window.RENT;
+  // Card da ficha: rentabilidade em 12 meses e da posição, só preço e com proventos (quando o ativo distribui)
+  function cardRentabilidade(tk, meta, pos, id) {
+    if (meta.tipo === "tesouro") return "";
+    const d = RT.doze(tk), un = meta.tipo === "acao" ? "ação" : "cota", kpi = V._kpi;
+    const p = pos ? RT.posicao(id, { cod: tk, tipo: "b3", preco: pos.preco, q: pos.q }) : null;
+    return `<section class="card section"><div class="card-h"><div><h2>Rentabilidade</h2><div class="sub">${d.distribui ? "Só a variação do preço e somando os proventos pagos (dividendos, JCP e rendimentos)" : "Este ativo não distribui proventos: a rentabilidade é só a variação do preço"}</div></div></div>
+      <div class="grid ${d.distribui ? "g3" : "g2"}">${kpi("12 meses · só preço", U.sinal(d.preco), `De R$ ${U.num(d.p0, 2)} para R$ ${U.num(d.p1, 2)}`)}
+        ${d.distribui ? kpi("12 meses · com proventos", U.sinal(d.total), `Preço ${U.sinal(d.preco)} + proventos ${U.sinal(d.provPct)}`, "Variação do preço + proventos com data ex no período, divididos pelo preço do início. Ex.: subiu 10% e pagou 10% em proventos = 20%.") + kpi("Proventos em 12 meses", `R$ ${U.num(d.prov, 2)}`, `por ${un} · ${U.num(d.provPct, 2)}% do preço inicial`) : ""}
+        ${p ? kpi(`Sua posição · desde ${U.data(p.entrada)}`, U.sinal(p.preco), `Só preço, sobre o preço médio de R$ ${U.num(p.pm, 2)}`) + (p.distribui ? kpi("Sua posição · com proventos", U.sinal(p.total), `${U.brl(p.provR)} recebidos em proventos`, "Proventos já pagos com data-com a partir da sua compra, somados à variação do preço, sobre o preço médio.") : "") : ""}</div></section>`;
+  }
 
   // =============== MERCADO HOJE ===============
   V.destaques = {
@@ -75,10 +86,11 @@
         <div><div class="price">R$ ${U.num(cot.ultimo, 2)}</div><div style="text-align:right">${U.sinal(cot.var)} <span class="muted small">hoje</span></div><div class="small muted" style="text-align:right;margin-top:4px">Abertura ${U.num(cot.abertura, 2)} · Mín ${U.num(cot.min, 2)} · Máx ${U.num(cot.max, 2)}</div><div style="text-align:right;margin-top:6px">${stamp()}</div></div>
       </div></div>
       ${pos ? `<div class="alert info-a section"><span class="ic">📌</span><div><b>Você tem ${U.qtd(pos.q)} ${meta.tipo === "tesouro" ? "títulos" : meta.tipo === "fii" || meta.tipo === "etf" ? "cotas" : "ações"} · ${U.brl(pos.valor)}</b><p>${U.num(pos.pct, 1)}% do seu patrimônio na B3${meusProv.length ? ` · ${U.brl(meusProv.filter((p) => p.recebido).reduce((a, p) => a + p.valor, 0))} recebidos em proventos (12m)` : ""}. Isto é a sua posição — acompanhar é separado.</p></div></div>` : ""}
+      ${cardRentabilidade(tk, meta, pos, id)}
       ${meta.tipo !== "tesouro" ? `<section class="card section"><div class="card-h"><div><h2>Gráfico ao vivo</h2><div class="sub">Cotação real de mercado via TradingView — sua posição acima usa os dados de teste</div></div><span class="real-badge">ao vivo</span></div><div class="tv-box" id="tvAtivo" data-sym="BMFBOVESPA:${tk}"></div></section>` : ""}
       <div class="grid g-main section">
         <div class="card"><div class="card-h"><h2>Histórico simulado</h2><div class="seg" role="group" aria-label="Período">${[["21", "1M"], ["126", "6M"], ["252", "12M"]].map(([n, t]) => `<button data-per="${n}" aria-pressed="${n === "252"}">${t}</button>`).join("")}</div></div><div class="chart" id="chAtivo"></div>
-          <div class="card-f">Fonte: B3 market data (simulado) · preço de fechamento ajustado · ${U.sinal(cot.var12m)} em 12 meses</div></div>
+          <div class="card-f">Fonte: B3 market data (simulado) · preço de fechamento · ${U.sinal(cot.var12m)} em 12 meses${RT.distribui(tk) ? ` · ${U.sinal(RT.doze(tk).total)} com proventos` : ""}</div></div>
         <div class="card"><div class="card-h"><h2>Próximo provento</h2></div>
           ${prox.length ? prox.slice(0, 1).map((p) => `<div class="stack"><div><span class="chip ${p.status === "Confirmado" ? "ok" : "warn"}">${p.status}</span> <b>${p.tipo}</b> · R$ ${U.num(p.valor, p.valor < 1 ? 4 : 2)} por ${meta.tipo === "fii" ? "cota" : "ação"}</div>
             <div class="list-item"><div class="date-box"><b>${p.dataCom.slice(8)}</b><span>${U.MESES[+p.dataCom.slice(5, 7) - 1]}</span></div><div class="grow"><div class="t">Data-com</div><div class="s">Último dia para comprar e ter direito</div></div></div>
@@ -154,9 +166,9 @@
       return `<div class="page-head"><div><div class="crumb">Mercado</div><h1>Lista de acompanhamento</h1><p>Ativos que você quer acompanhar — separados dos que você tem</p></div>
         <div style="display:flex;gap:8px;align-items:flex-end"><label class="small muted" style="display:flex;flex-direction:column;gap:4px">Adicionar ativo<select class="sel" id="addW"><option value="">Escolha…</option>${Object.keys(C.ativos).filter((t) => !w.includes(t)).map((t) => `<option>${t}</option>`).join("")}</select></label></div></div>
       ${disparados.length ? `<div class="alert info-a" style="margin-bottom:16px"><span class="ic">🔔</span><div><b>${disparados.length} alerta(s) atingido(s)</b><p>${disparados.map((t) => `${t} está em R$ ${U.num(M.cotacoes[t].ultimo, 2)}`).join(" · ")}</p></div></div>` : ""}
-      <div class="card">${w.length ? `<div class="tbl-wrap"><table><thead><tr><th>Ativo</th><th class="num">Preço</th><th class="num">Dia</th><th class="num">12 meses</th><th class="num">DY</th><th>Próximo evento</th><th>Alerta de preço</th><th>Avisar data-com</th><th></th></tr></thead><tbody>
+      <div class="card">${w.length ? `<div class="tbl-wrap"><table><thead><tr><th>Ativo</th><th class="num">Preço</th><th class="num">Dia</th><th class="num">12 meses</th><th class="num">12m c/ proventos</th><th class="num">DY</th><th>Próximo evento</th><th>Alerta de preço</th><th>Avisar data-com</th><th></th></tr></thead><tbody>
         ${w.map((tk) => { const c = M.cotacoes[tk], m = C.ativos[tk], a = alertas[tk] || {}, ev = M.eventos.find((e) => e.ticker === tk && e.data >= M.BASE);
-          return `<tr><td><div class="asset">${linkAtivo(tk)}<small>${U.esc(m.nome)}</small></div>${r.ativos.some((x) => x.tk === tk) ? '<span class="chip blue" style="margin-top:4px">Você tem</span>' : ""}</td><td class="num">R$ ${U.num(c.ultimo, 2)}</td><td class="num">${U.sinal(c.var)}</td><td class="num">${U.sinal(c.var12m)}</td><td class="num">${m.ind.dy ? U.num(m.ind.dy, 1) + "%" : "—"}</td>
+          return `<tr><td><div class="asset">${linkAtivo(tk)}<small>${U.esc(m.nome)}</small></div>${r.ativos.some((x) => x.tk === tk) ? '<span class="chip blue" style="margin-top:4px">Você tem</span>' : ""}</td><td class="num">R$ ${U.num(c.ultimo, 2)}</td><td class="num">${U.sinal(c.var)}</td><td class="num">${U.sinal(c.var12m)}</td><td class="num">${RT.distribui(tk) ? U.sinal(c.var12m + RT.doze(tk).provPct) : '<span class="small muted">não distribui</span>'}</td><td class="num">${m.ind.dy ? U.num(m.ind.dy, 1) + "%" : "—"}</td>
           <td class="small">${ev ? `${ev.tipo} · ${U.data(ev.data)}` : '<span class="muted">—</span>'}</td>
           <td><div style="display:flex;gap:4px"><input aria-label="Avisar se ${tk} ficar acima de" data-al="acima" data-tk="${tk}" type="number" step="0.01" placeholder="acima de" value="${a.acima || ""}" style="width:86px;height:30px;border:1px solid var(--line);border-radius:6px;padding:0 6px"><input aria-label="Avisar se ${tk} ficar abaixo de" data-al="abaixo" data-tk="${tk}" type="number" step="0.01" placeholder="abaixo de" value="${a.abaixo || ""}" style="width:86px;height:30px;border:1px solid var(--line);border-radius:6px;padding:0 6px"></div></td>
           <td><input type="checkbox" data-al="datacom" data-tk="${tk}" ${a.datacom ? "checked" : ""} aria-label="Avisar data-com de ${tk}"></td>
@@ -181,11 +193,14 @@
   V.comparar = {
     html({ params, r }) {
       const sel = (params[0] ? params[0].split(",") : r.ativos.filter((a) => C.ativos[a.tk].tipo !== "tesouro").slice(0, 2).map((a) => a.tk).concat(["PETR4", "VALE3"])).filter((t, i, s) => C.ativos[t] && s.indexOf(t) === i).slice(0, 4);
-      const linhas = [["Tipo", (m) => ({ acao: "Ação", fii: "FII", etf: "ETF", tesouro: "Tesouro" }[m.tipo])], ["Setor", (m) => m.setor], ["Preço", (m, c) => "R$ " + U.num(c.ultimo, 2)], ["Variação 12m", (m, c) => U.sinal(c.var12m)], ["Dividend yield", (m) => (m.ind.dy ? U.num(m.ind.dy, 1) + "%" : "—")], ["P/VP", (m) => (m.ind.pvp ? U.num(m.ind.pvp, 2) : "—")], ["P/L", (m) => (m.ind.pl ? U.num(m.ind.pl, 1) : "—")], ["ROE", (m) => (m.ind.roe ? U.num(m.ind.roe, 1) + "%" : "—")], ["Vacância", (m) => (m.ind.vacancia !== undefined && m.ind.vacancia !== null ? U.num(m.ind.vacancia, 1) + "%" : "—")], ["Volume médio", (m, c) => (c.volumeMi ? "R$ " + U.num(c.volumeMi, 1) + " mi" : "—")]];
+      const linhas = [["Tipo", (m) => ({ acao: "Ação", fii: "FII", etf: "ETF", tesouro: "Tesouro" }[m.tipo])], ["Setor", (m) => m.setor], ["Preço", (m, c) => "R$ " + U.num(c.ultimo, 2)], ["Rentabilidade 12m · só preço", (m, c, t) => U.sinal(RT.doze(t).preco)], ["Proventos 12m", (m, c, t) => { const d = RT.doze(t); return d.distribui ? `R$ ${U.num(d.prov, 2)} por ${m.tipo === "acao" ? "ação" : "cota"}<br><span class="small muted">${U.num(d.provPct, 2)}% do preço inicial</span>` : '<span class="muted">não distribui</span>'; }], ["Rentabilidade 12m · com proventos", (m, c, t) => { const d = RT.doze(t); return d.distribui ? `<b>${U.sinal(d.total)}</b>` : U.sinal(d.preco); }], ["Dividend yield", (m) => (m.ind.dy ? U.num(m.ind.dy, 1) + "%" : "—")], ["P/VP", (m) => (m.ind.pvp ? U.num(m.ind.pvp, 2) : "—")], ["P/L", (m) => (m.ind.pl ? U.num(m.ind.pl, 1) : "—")], ["ROE", (m) => (m.ind.roe ? U.num(m.ind.roe, 1) + "%" : "—")], ["Vacância", (m) => (m.ind.vacancia !== undefined && m.ind.vacancia !== null ? U.num(m.ind.vacancia, 1) + "%" : "—")], ["Volume médio", (m, c) => (c.volumeMi ? "R$ " + U.num(c.volumeMi, 1) + " mi" : "—")]];
       return `<div class="page-head"><div><div class="crumb">Mercado</div><h1>Comparar ativos</h1><p>Até 4 ativos lado a lado. Indicadores diferentes medem coisas diferentes — compare ativos do mesmo tipo.</p></div></div>
       <div class="filters">${[0, 1, 2, 3].map((i) => `<label>Ativo ${i + 1}<select data-cmp="${i}"><option value="">—</option>${Object.keys(C.ativos).map((t) => `<option ${sel[i] === t ? "selected" : ""}>${t}</option>`).join("")}</select></label>`).join("")}</div>
-      ${sel.length ? `<div class="card"><div class="card-h"><div><h2>Desempenho em 12 meses</h2><div class="sub">Base 100 no início do período</div></div></div><div class="chart" id="chCmp"></div></div>
-      <div class="card section"><div class="tbl-wrap"><table><thead><tr><th></th>${sel.map((t) => `<th>${linkAtivo(t)}</th>`).join("")}</tr></thead><tbody>${linhas.map(([l, f]) => `<tr><td class="muted">${l}</td>${sel.map((t) => `<td>${f(C.ativos[t], M.cotacoes[t])}</td>`).join("")}</tr>`).join("")}</tbody></table></div><div class="card-f">Indicadores ilustrativos · não constitui recomendação</div></div>` : '<div class="card empty">Escolha ao menos um ativo.</div>'}`;
+      ${sel.length ? `<div class="card"><div class="card-h"><div><h2>Desempenho em 12 meses</h2><div class="sub">Base 100 no início do período ${U.info("Com proventos: cada provento é somado à cota na data ex, sem reinvestir. Índices simulados neste protótipo; S&P 500 em reais, pela cota do IVVB11.")}</div></div>
+          <div class="seg" role="group" aria-label="Proventos"><button data-cmprov="1" aria-pressed="${U.store.get("cmp:prov", true)}">Com proventos</button><button data-cmprov="0" aria-pressed="${!U.store.get("cmp:prov", true)}">Só preço</button></div></div>
+        <div class="idx-sel" role="group" aria-label="Comparar também com"><span class="lbl">Comparar também com:</span>${Object.entries(RT.INDICES).map(([k, ix]) => `<button type="button" class="chip-tg" data-cidx="${k}" aria-pressed="${U.store.get("cmp:idx", ["cdi"]).includes(k)}" title="${ix.desc}"><i style="background:${ix.cor}"></i>${ix.nome}</button>`).join("")}</div>
+        <div class="chart" id="chCmp"></div><div class="grid g4" id="cmpKpi" style="margin-top:12px"></div></div>
+      <div class="card section"><div class="tbl-wrap"><table><thead><tr><th></th>${sel.map((t) => `<th>${linkAtivo(t)}</th>`).join("")}</tr></thead><tbody>${linhas.map(([l, f]) => `<tr><td class="muted">${l}</td>${sel.map((t) => `<td>${f(C.ativos[t], M.cotacoes[t], t)}</td>`).join("")}</tr>`).join("")}</tbody></table></div><div class="card-f">Indicadores ilustrativos · não constitui recomendação</div></div>` : '<div class="card empty">Escolha ao menos um ativo.</div>'}`;
     },
     after({ params, r }) {
       document.querySelectorAll("[data-cmp]").forEach((s) => s.addEventListener("change", () => {
@@ -194,8 +209,20 @@
       }));
       const sel = [...document.querySelectorAll("[data-cmp]")].map((x) => x.value).filter(Boolean);
       const el = document.getElementById("chCmp"); if (!el || !sel.length) return;
-      const cores = ["#06377b", "#0e7c86", "#c27c0e", "#7a3db8"];
-      CH.linha(el, { series: sel.map((t, i) => { const s = M.cotacoes[t].serie.filter((_, k) => k % 3 === 0 || k === 251); return { nome: t, cor: cores[i], pontos: s.map(([d, v]) => [d, (v / s[0][1]) * 100]) }; }), fmtY: (v, e) => (e ? U.num(v, 0) : U.num(v, 1)), fmtX, legenda: true, label: "Comparação base 100" });
+      const cores = ["#06377b", "#e0661b", "#0f9d9a", "#a3398f"];
+      const amostra = (s) => s.filter((_, k) => k % 3 === 0 || k === s.length - 1);
+      const desenha = () => {
+        const comProv = U.store.get("cmp:prov", true), idx = U.store.get("cmp:idx", ["cdi"]).filter((k) => RT.INDICES[k]);
+        document.querySelectorAll("[data-cmprov]").forEach((b) => b.setAttribute("aria-pressed", String((b.dataset.cmprov === "1") === comProv)));
+        document.querySelectorAll("[data-cidx]").forEach((b) => b.setAttribute("aria-pressed", String(idx.includes(b.dataset.cidx))));
+        const series = sel.map((t, i) => ({ nome: t + (comProv && RT.distribui(t) ? " + proventos" : ""), cor: cores[i], pontos: amostra(RT.serieBase100(t, comProv)) }))
+          .concat(idx.map((k) => ({ nome: RT.INDICES[k].nome, cor: RT.INDICES[k].cor, tracejado: true, pontos: amostra(RT.base100(k)) })));
+        CH.linha(el, { series, fmtY: (v, e) => (e ? U.num(v, 0) : U.num(v, 1)), fmtX, legenda: true, label: "Comparação base 100" });
+        document.getElementById("cmpKpi").innerHTML = series.map((s) => V._kpi(`<i class="kpi-dot" style="background:${s.cor}"></i>${s.nome}`, U.sinal(s.pontos.at(-1)[1] - 100), "em 12 meses")).join("");
+      };
+      document.querySelectorAll("[data-cmprov]").forEach((b) => b.addEventListener("click", () => { U.store.set("cmp:prov", b.dataset.cmprov === "1"); desenha(); }));
+      document.querySelectorAll("[data-cidx]").forEach((b) => b.addEventListener("click", () => { const s = U.store.get("cmp:idx", ["cdi"]), k = b.dataset.cidx; U.store.set("cmp:idx", s.includes(k) ? s.filter((x) => x !== k) : s.concat(k)); desenha(); }));
+      desenha();
     },
   };
 
@@ -227,7 +254,9 @@
 
 /* ===== V2: aba Mercado com gráficos reais (TradingView), incluindo os ETFs de Criptomoedas da B3 ===== */
 (function (V) {
-  const U = window.U, C = window.CATALOGO, M = window.MERCADO, CR = window.CRIPTO;
+  const U = window.U, C = window.CATALOGO, M = window.MERCADO, CR = window.CRIPTO, RT = window.RENT;
+  // Rentabilidade em duas linhas: só preço e com proventos (quando o ativo distribui)
+  const rentDuo = (preco, total, distribui) => `<div>${U.sinal(preco)} <span class="small muted">preço</span></div>${distribui ? `<div>${U.sinal(total)} <span class="small muted">c/ proventos</span></div>` : '<div class="small muted">não distribui</div>'}`;
 
   // Carrega um widget oficial do TradingView dentro do elemento (gráfico real de mercado)
   function tv(el, tipo, cfg) {
@@ -275,6 +304,7 @@
             <section class="card"><h2>Sua posição</h2>
               <div class="kpi" style="margin-top:12px"><div class="lbl">Quantidade</div><div class="val">${U.qtd(pos.q)}</div></div>
               <div class="kpi" style="margin-top:12px"><div class="lbl">Valor (data-base)</div><div class="val">${U.brl(pos.valor)}</div></div>
+              ${(() => { const p = RT.posicao(id, { cod: sel, tipo: isCr ? "cripto" : "b3", preco: pos.preco, q: pos.q }); return `<div class="kpi" style="margin-top:12px"><div class="lbl">Rentabilidade${p.entrada ? ` desde ${U.data(p.entrada)}` : ""}</div><div class="val" style="font-size:20px">${rentDuo(p.preco, p.total, p.distribui)}</div>${p.distribui ? `<div class="det">${U.brl(p.provR)} recebidos em proventos</div>` : ""}</div>`; })()}
               ${isCr ? `<div class="kpi" style="margin-top:12px"><div class="lbl">Preço da cota</div><div class="val">R$ ${U.num(m.preco, 2)}</div><div class="det">Dia ${U.sinal(m.ch.d1)} · 30 dias ${U.sinal(m.ch.d30)}</div></div>
                 <div class="alert info-a" style="margin-top:14px"><span class="ic">ℹ️</span><div><p>Este é um ETF de Criptomoedas: um fundo negociado na B3, sob custódia da B3, que acompanha o preço da cripto. A B3 não intermedia a compra direta de criptomoedas.</p></div></div>`
               : `<a class="btn" style="margin-top:16px" href="#/ativo/${sel}">Ficha completa do ativo →</a>`}

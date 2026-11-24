@@ -103,7 +103,9 @@ window.CONSOL = (function () {
       if (x.tipo === "b3") { const s = M.cotacoes[x.cod].serie; ini = x.valor * (s[L - 1 - n][1] / s[L - 1][1]); }
       else if (x.tipo === "rf") ini = x.valor / Math.pow(1 + (TAXA_MES[x.sub] || 0.01), n / 21);
       else ini = x.q * CR.precoEm(x.cod, M.dias[L - 1 - n], Math.round(n * 1.45));
-      return Object.assign({}, x, { ganho: x.valor - ini, pctVar: ((x.valor - ini) / ini) * 100 });
+      // proventos com data ex no período (ações, FIIs e ETFs que distribuem)
+      const provR = x.tipo === "b3" && x.classe === "Renda variavel" ? window.RENT.provPeriodo(x.cod, x.q, n) : 0;
+      return Object.assign({}, x, { ganho: x.valor - ini, pctVar: ((x.valor - ini) / ini) * 100, provR, ganhoProv: x.valor - ini + provR, pctProv: ((x.valor - ini + provR) / ini) * 100 });
     }).sort((a, b) => b.ganho - a.ganho);
   }
 

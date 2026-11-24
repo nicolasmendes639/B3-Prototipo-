@@ -39,16 +39,20 @@ window.CART = (function () {
     // Rentabilidade mensal (Modified Dietz simplificado: fluxos no meio do mês)
     const fluxoMes = {};
     inv.mov.forEach((m) => { const k = ym(m[0]); fluxoMes[k] = (fluxoMes[k] || 0) + (m[3] === "Compra" ? m[7] : -m[7]); });
-    const rent = [[evol[0][0], 0]], cdi = [[evol[0][0], 0]];
-    let acc = 1, accCdi = 1;
+    // proventos recebidos no mês entram como retorno na curva "com proventos"
+    const provMes = {};
+    inv.prov.forEach((p) => { if (p[6]) provMes[ym(p[0])] = (provMes[ym(p[0])] || 0) + p[5]; });
+    const rent = [[evol[0][0], 0]], cdi = [[evol[0][0], 0]], rentProv = [[evol[0][0], 0]];
+    let acc = 1, accCdi = 1, accProv = 1;
     for (let i = 1; i < evol.length; i++) {
       const v0 = evol[i - 1][1], v1 = evol[i][1];
       const k = ym(evol[i][0]);
       const f = i === evol.length - 1 && ym(evol[i][0]) === ym(evol[i - 1][0]) ? 0 : fluxoMes[k] || 0;
       let r = (v1 - v0 - f) / (v0 + 0.5 * f || 1);
       r = Math.max(-0.35, Math.min(0.35, r));
-      acc *= 1 + r; accCdi *= 1 + (M.cdiMensal[i - 1] || 1) / 100;
-      rent.push([evol[i][0], (acc - 1) * 100]); cdi.push([evol[i][0], (accCdi - 1) * 100]);
+      const rp = Math.max(-0.35, Math.min(0.35, r + (provMes[k] || 0) / (v0 + 0.5 * f || 1)));
+      acc *= 1 + r; accCdi *= 1 + (M.cdiMensal[i - 1] || 1) / 100; accProv *= 1 + rp;
+      rent.push([evol[i][0], (acc - 1) * 100]); cdi.push([evol[i][0], (accCdi - 1) * 100]); rentProv.push([evol[i][0], (accProv - 1) * 100]);
     }
     const ibovS = M.indices.IBOV.serie;
     const ibov = evol.map(([d]) => { const p = ibovS.filter((x) => x[0] <= d).pop() || ibovS[0]; return [d, (p[1] / ibovS.find((x) => x[0] >= dataIni)[1] - 1) * 100]; });
@@ -63,7 +67,7 @@ window.CART = (function () {
     const pend = insts.length >= 3 ? insts[hash(id) % insts.length] : null;
     const conexoes = insts.map((n) => ({ nome: n, valor: porInst.find((x) => x.nome === n).valor, status: n === pend ? "aguardando" : "ok", posicao: n === pend ? "2026-11-19" : D.dataBase }));
 
-    const r = { id, inv, total, porClasse, porInst, porTipo, ativos, evol, ini, fim, variacao, aportesLiq, entradas, saidas, resultado, rent, cdi, ibov, prov, recebidos12, anunciados, conexoes, pendInst: pend, dataIni };
+    const r = { id, inv, total, porClasse, porInst, porTipo, ativos, evol, ini, fim, variacao, aportesLiq, entradas, saidas, resultado, rent, rentProv, cdi, ibov, prov, recebidos12, anunciados, conexoes, pendInst: pend, dataIni };
     cache[id] = r;
     return r;
   }

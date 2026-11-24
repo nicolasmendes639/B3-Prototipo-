@@ -22,6 +22,8 @@ Protótipo navegável de uma nova **Área do Investidor da B3**. Ele junta em um
 | **Relatórios** | O único lugar com tabelas: posição, movimentações e proventos, exportação em CSV e informes de IR. |
 | **Meu Perfil de Investidor** | Questionário de perfil (8 perguntas, ~2 min), resultado e botão para refazer. Ao entrar no site, quem ainda não respondeu recebe um convite, com a opção “Fazer mais tarde”. |
 
+**Rentabilidade com proventos:** em todo lugar que mostra a rentabilidade de um ativo que distribui (ações, FIIs, ETFs e BDRs que pagam), aparecem duas: só o preço e com os proventos pagos (preço + proventos ÷ preço inicial, sem reinvestir). Na carteira, conta desde a compra; na ficha, no comparador e no acompanhamento, em 12 meses.
+
 O botão **✦ Pergunte à IA**, no canto inferior direito, abre o chat ao lado da tela. No site publicado ele funciona em **modo demonstração**, com respostas locais.
 
 ---
@@ -51,6 +53,7 @@ js/videos.js          roteiro e player dos vídeos
 js/chat.js            assistente de IA
 js/tutoriais.js       boas-vindas e tours guiados
 js/cripto.js          ETFs de Criptomoedas + consolidação das contas
+js/rentabilidade.js   rentabilidade com e sem proventos + índices (CDI, IPCA, Poupança, Ibovespa, IFIX, S&P 500)
 js/data.js            dados fictícios dos 100 investidores
 server.py             servidor local + IA real (opcional)
 versao-antiga-v1/     v1 guardada (arquivo único)

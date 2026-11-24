@@ -670,3 +670,14 @@ span.pos { display: inline; padding: 0; border-radius: 0; color: var(--pos); }
 /* aba "Meu Perfil de Investidor": nome completo só em telas largas */
 .tabs-main .lbl-c { display: none; }
 @media (max-width: 1599px) { .tabs-main .lbl-l { display: none; } .tabs-main .lbl-c { display: inline; } .tabs-main a { padding: 10px 11px; gap: 6px; } }
+
+/* ---------- Seletor de índices (Rentabilidade e Comparar) ---------- */
+.idx-sel { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 12px; }
+.idx-sel .lbl { font-size: 14px; font-weight: 600; color: var(--ink-2); margin-right: 2px; }
+.chip-tg { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--ink-2); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.chip-tg i { width: 10px; height: 10px; border-radius: 50%; opacity: .35; }
+.chip-tg[aria-pressed="true"] { border-color: var(--b3); background: var(--b3-50); color: var(--b3); }
+.chip-tg[aria-pressed="true"] i { opacity: 1; }
+.chip-tg[aria-pressed="true"]::after { content: "✓"; font-size: 13px; }
+.kpi-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.rent-prov { background: #f3faf6; }
