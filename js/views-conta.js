@@ -17,7 +17,7 @@
         const tot = its.reduce((a, x) => a + x.valor, 0);
         corpo = `<section class="card"><div class="card-h"><div><h2>Posição consolidada</h2><div class="sub">Todas as contas · ${U.data(D.dataBase)}</div></div><button class="btn sm" data-csv="pos">⬇ Baixar CSV</button></div>
           ${tabela([{ t: "Investimento" }, { t: "Tipo" }, { t: "Onde está" }, { t: "Quantidade", n: 1 }, { t: "Valor", n: 1 }, { t: "% do total", n: 1 }],
-            its.map((x) => [`<b>${U.esc(x.tipo === "rf" ? x.nome : x.cod)}</b><br><span class="small muted">${U.esc(x.tipo === "rf" ? "" : x.nome)}</span>`, x.tipo === "cripto" ? "Cripto" : U.rotuloTipo(x.sub), x.tipo === "rf" ? x.instTxt : x.tipo === "cripto" ? x.inst : "B3 (custódia)", x.q !== undefined ? U.qtd(x.q) : "—", `<b>${U.brl(x.valor)}</b>`, U.num(x.pct, 1) + "%"]),
+            its.map((x) => [`<b>${U.esc(x.tipo === "rf" ? x.nome : x.cod)}</b><br><span class="small muted">${U.esc(x.tipo === "rf" ? "" : x.nome)}</span>`, x.tipo === "cripto" ? "ETF de Criptomoedas" : U.rotuloTipo(x.sub), x.tipo === "rf" ? x.instTxt : "B3 (custódia)", x.q !== undefined ? U.qtd(x.q) : "—", `<b>${U.brl(x.valor)}</b>`, U.num(x.pct, 1) + "%"]),
             ["Total", "", "", "", `<b>${U.brl(tot)}</b>`, "100%"])}</section>`;
       } else if (aba === "movimentacoes") {
         corpo = `<section class="card"><div class="card-h"><h2>Extrato de movimentações</h2><button class="btn sm" data-csv="mov">⬇ Baixar CSV</button></div>
@@ -26,7 +26,7 @@
         corpo = `<section class="card"><div class="card-h"><h2>Proventos</h2><button class="btn sm" data-csv="prov">⬇ Baixar CSV</button></div>
           ${tabela([{ t: "Data" }, { t: "Ativo" }, { t: "Tipo" }, { t: "Status" }, { t: "Valor líquido", n: 1 }], r.prov.slice().reverse().map((p) => [U.data(p.data), V._linkAtivo(p.tk), U.rotuloProv(p.tp), p.recebido ? '<span class="chip ok">Pago</span>' : '<span class="chip warn">Anunciado</span>', `<b>${U.brl(p.valor)}</b>`]))}</section>`;
       } else if (aba === "informes") {
-        corpo = `<div class="alert info-a"><span class="ic">ℹ️</span><div><b>O informe ajuda, mas não é a declaração completa.</b><p>Não inclui corretagem, apuração de ganho de capital nem operações com cripto (consulte sua exchange).</p></div></div>
+        corpo = `<div class="alert info-a"><span class="ic">ℹ️</span><div><b>O informe ajuda, mas não é a declaração completa.</b><p>Não inclui corretagem nem apuração de ganho de capital, inclusive nas vendas de ETFs de Criptomoedas.</p></div></div>
           <section class="card section">${[["Informe de rendimentos 2025", "Proventos e posição em 31/12/2025", "ir25", "Disponível"], ["Informe de rendimentos 2026", "Publicado a partir de fevereiro de 2027", null, "Em fev/2027"], ["Extrato de posição", "Todas as contas, na data-base", "pos", "Disponível"], ["Extrato de movimentações", "Últimos 12 meses", "mov", "Disponível"]].map(([t, s, k, st]) => `<div class="list-item"><span style="font-size:24px" aria-hidden="true">📄</span><div class="grow"><div class="t">${t}</div><div class="s">${s}</div></div><span class="chip ${k ? "ok" : ""}">${st}</span>${k ? `<button class="btn sm" data-csv="${k}">⬇ CSV</button>` : ""}</div>`).join("")}</section>`;
       }
       return `<div class="page-head"><div><h1>Relatórios</h1><p>Todos os números em tabela, para conferir e exportar</p></div></div>${V._sub("relatorios", aba, abas)}${corpo}`;
@@ -52,7 +52,7 @@
   };
 
   // =============== CONTA ===============
-  const CORRETORAS = ["Corretora Alfa", "Banco Beta Investimentos", "Corretora Gama", "Exchange cripto B", "Banco Delta", "Corretora Ômega"];
+  const CORRETORAS = ["Corretora Alfa", "Banco Beta Investimentos", "Corretora Gama", "Banco Delta", "Corretora Ômega"];
   V.conta = {
     html(ctx) {
       const { id, r, params } = ctx, aba = params[0] || "contas";
@@ -60,7 +60,7 @@
       let corpo = "";
       if (aba === "contas") {
         const inst = K.porInstituicao(id), extras = U.store.get("contas:extras", []);
-        corpo = `<div class="alert ${r.pendInst ? "" : "ok"}"><span class="ic">${r.pendInst ? "⚠️" : "✅"}</span><div><b>${r.pendInst ? "Uma conta ainda não atualizou" : "Todas as contas estão atualizadas"}</b><p>Identificamos suas contas automaticamente pelo seu CPF (B3) e pelas autorizações de Open Finance e exchanges.</p></div></div>
+        corpo = `<div class="alert ${r.pendInst ? "" : "ok"}"><span class="ic">${r.pendInst ? "⚠️" : "✅"}</span><div><b>${r.pendInst ? "Uma conta ainda não atualizou" : "Todas as contas estão atualizadas"}</b><p>Identificamos suas contas automaticamente pelo seu CPF (B3) e pelas autorizações de Open Finance.</p></div></div>
           <section class="card section"><div class="card-h"><h2>Suas contas</h2><button class="btn sm primary" id="addConta">+ Conectar outra conta</button></div>
           ${inst.concat(extras.map((n) => ({ nome: n, valor: 0, tipo: "Conectando…", novo: true }))).map((c) => { const pend = c.nome === r.pendInst; return `<div class="list-item" style="align-items:flex-start"><span style="font-size:22px" aria-hidden="true">${c.novo ? "🔄" : pend ? "🟠" : "🟢"}</span><div class="grow"><div class="t">${c.nome} <span class="small muted">· ${c.tipo}</span></div><div class="s">${c.novo ? "Aguardando a primeira sincronização (até 1 dia útil)" : `Posição de ${pend ? "19/11/2026" : U.data(D.dataBase)} · ${U.brl(c.valor)}`}</div>
             ${pend ? `<details style="margin-top:8px"><summary class="small" style="cursor:pointer;color:var(--b3);font-weight:600">Entenda o prazo e quem resolve</summary><div class="steps"><div class="st done">Conta identificada</div><div class="st done">Última posição 19/11</div><div class="st now">Aguardando a instituição</div><div class="st">Atualizado</div></div><p class="small">Normalmente resolve em até 2 dias úteis. Se continuar, a instituição é quem corrige — abra uma solicitação já com o contexto.</p><button class="btn sm" data-sol>Abrir solicitação</button></details>` : ""}</div><span class="chip ${c.novo ? "" : pend ? "warn" : "ok"}">${c.novo ? "Sincronizando" : pend ? "Pendente" : "Atualizada"}</span></div>`; }).join("")}</section>

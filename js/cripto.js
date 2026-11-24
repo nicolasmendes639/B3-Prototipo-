@@ -1,18 +1,20 @@
-/* Cripto (preços ao vivo via CoinGecko, com fallback) + consolidação de TODAS as contas
- * (B3, renda fixa/fundos das corretoras e carteiras cripto) e cálculo de ganho/perda por período.
+/* ETFs de Criptomoedas negociados na B3 (a B3 não intermedia a compra direta de cripto)
+ * + consolidação de TODAS as contas (B3 e renda fixa/fundos das corretoras) e cálculo de ganho/perda por período.
  */
 window.CRIPTO = (function () {
   const U = window.U;
+  // Preços e variações fictícios (data-base); o gráfico da aba Mercado usa a cotação real na B3.
   const MOEDAS = {
-    BTC: { id: "bitcoin", nome: "Bitcoin", cor: "#f7931a", tv: "BINANCE:BTCBRL", preco: 357880, ch: { d7: -3.1, d30: -8.4, d180: 4.2, d365: 18.5 } },
-    ETH: { id: "ethereum", nome: "Ethereum", cor: "#627eea", tv: "BINANCE:ETHBRL", preco: 10082, ch: { d7: -4.0, d30: -12.1, d180: -6.3, d365: 9.8 } },
-    SOL: { id: "solana", nome: "Solana", cor: "#14b8a6", tv: "BINANCE:SOLBRL", preco: 760, ch: { d7: -5.2, d30: -15.0, d180: -10.4, d365: 12.2 } },
+    QBTC11: { nome: "ETF de Bitcoin (QBTC11)", cor: "#f7931a", tv: "BMFBOVESPA:QBTC11", preco: 38.5, ch: { d1: -0.8, d7: -3.1, d30: -8.4, d180: 4.2, d365: 18.5 } },
+    QETH11: { nome: "ETF de Ethereum (QETH11)", cor: "#627eea", tv: "BMFBOVESPA:QETH11", preco: 21.4, ch: { d1: -1.1, d7: -4.0, d30: -12.1, d180: -6.3, d365: 9.8 } },
+    QSOL11: { nome: "ETF de Solana (QSOL11)", cor: "#14b8a6", tv: "BMFBOVESPA:QSOL11", preco: 9.8, ch: { d1: -1.4, d7: -5.2, d30: -15.0, d180: -10.4, d365: 12.2 } },
   };
-  const estado = { aoVivo: false, atualizado: null, series: {} };
+  const estado = { aoVivo: false };
 
   function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
 
-  // Carteira cripto fictícia por investidor (3–8% do patrimônio; menor para perfis de renda fixa)
+  // ETFs de Criptomoedas fictícios por investidor (3–8% do patrimônio; menor para perfis de renda fixa),
+  // custodiados na B3 por meio da corretora principal do investidor
   function posicoes(id) {
     const inv = window.B3DATA.investidores[id];
     const totalB3 = inv.classes.reduce((a, c) => a + c[4], 0);
@@ -20,45 +22,21 @@ window.CRIPTO = (function () {
     if (inv.perfilCarteira === "Renda fixa" && h % 3 !== 0) return [];
     const pct = (inv.perfilCarteira === "Renda fixa" ? 0.015 : 0.03) + (h % 50) / 1000;
     const base = totalB3 * pct;
-    return [["BTC", 0.6], ["ETH", 0.3], ["SOL", 0.1]].map(([s, w]) => {
-      const q = +((base * w) / MOEDAS[s].preco).toFixed(s === "SOL" ? 2 : 5);
-      return { sym: s, q, nome: MOEDAS[s].nome, inst: "Exchange cripto A", get preco() { return MOEDAS[s].preco; }, get valor() { return q * MOEDAS[s].preco; } };
+    const inst = (window.CART.resumo(id).porInst[0] || {}).nome || "Corretora";
+    return [["QBTC11", 0.6], ["QETH11", 0.3], ["QSOL11", 0.1]].map(([s, w]) => {
+      const q = Math.floor((base * w) / MOEDAS[s].preco);
+      return { sym: s, q, nome: MOEDAS[s].nome, inst, get preco() { return MOEDAS[s].preco; }, get valor() { return q * MOEDAS[s].preco; } };
     }).filter((p) => p.q > 0);
   }
 
-  async function carregar() {
-    try {
-      const ids = Object.values(MOEDAS).map((m) => m.id).join(",");
-      const r = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=brl&ids=${ids}&price_change_percentage=7d,30d,200d,1y`);
-      if (!r.ok) throw new Error(r.status);
-      const j = await r.json();
-      j.forEach((c) => {
-        const m = Object.values(MOEDAS).find((x) => x.id === c.id); if (!m) return;
-        m.preco = c.current_price;
-        m.ch = { d1: c.price_change_percentage_24h, d7: c.price_change_percentage_7d_in_currency, d30: c.price_change_percentage_30d_in_currency, d180: c.price_change_percentage_200d_in_currency, d365: c.price_change_percentage_1y_in_currency };
-      });
-      estado.aoVivo = true; estado.atualizado = new Date();
-      // séries diárias reais (1 ano)
-      await Promise.all(Object.entries(MOEDAS).map(async ([s, m]) => {
-        try {
-          const rr = await fetch(`https://api.coingecko.com/api/v3/coins/${m.id}/market_chart?vs_currency=brl&days=365&interval=daily`);
-          if (rr.ok) { const jj = await rr.json(); estado.series[s] = jj.prices.map(([t, p]) => [new Date(t).toISOString().slice(0, 10), p]); }
-        } catch (e) { /* mantém série simulada */ }
-      }));
-      return true;
-    } catch (e) { return false; }
-  }
-
-  // preço da moeda numa data (série real se houver; senão aproximação pela variação do período)
+  // preço do ETF numa data (aproximação pela variação do período)
   function precoEm(sym, dataIso, diasAtras) {
-    const s = estado.series[sym];
-    if (s && s.length) { let best = s[0][1]; for (const [d, p] of s) { if (d <= dataIso) best = p; else break; } return best; }
     const m = MOEDAS[sym], ch = diasAtras <= 7 ? m.ch.d7 : diasAtras <= 30 ? m.ch.d30 : diasAtras <= 190 ? m.ch.d180 : m.ch.d365;
     const k = Math.min(1, diasAtras / (diasAtras <= 7 ? 7 : diasAtras <= 30 ? 30 : diasAtras <= 190 ? 180 : 365));
     return m.preco / (1 + ((ch || 0) / 100) * k);
   }
 
-  return { MOEDAS, estado, posicoes, carregar, precoEm };
+  return { MOEDAS, estado, posicoes, precoEm };
 })();
 
 window.CONSOL = (function () {
@@ -66,7 +44,7 @@ window.CONSOL = (function () {
   // rendimento mensal aproximado de produtos sem cotação diária (para reconstruir a curva)
   const TAXA_MES = { CDB: 0.0105, LCA: 0.0092, LCI: 0.0092, Debenture: 0.0115, "Fundo de investimento": 0.0095 };
   const CORES = { "Renda variavel": "#06377b", "Tesouro Direto": "#0e7c86", "Renda fixa": "#c27c0e", Fundos: "#7a3db8", Cripto: "#f7931a" };
-  const ROTULO = { "Renda variavel": "Ações, FIIs e ETFs", "Tesouro Direto": "Tesouro Direto", "Renda fixa": "Renda fixa", Fundos: "Fundos", Cripto: "Cripto" };
+  const ROTULO = { "Renda variavel": "Ações, FIIs e ETFs", "Tesouro Direto": "Tesouro Direto", "Renda fixa": "Renda fixa", Fundos: "Fundos", Cripto: "ETFs de Criptomoedas" };
 
   function itens(id) {
     const r = window.CART.resumo(id);
@@ -75,7 +53,7 @@ window.CONSOL = (function () {
     const agg = {};
     r.inv.classes.filter((c) => c[1] === "Renda fixa" || c[1] === "Fundos").forEach((c) => { const k = c[2]; agg[k] = agg[k] || { tipo: "rf", cod: k, nome: k === "Fundo de investimento" ? "Fundos de investimento" : k === "Debenture" ? "Debêntures" : k, classe: c[1], sub: k, valor: 0, inst: new Set() }; agg[k].valor += c[4]; agg[k].inst.add(c[0]); });
     Object.values(agg).forEach((x) => out.push(Object.assign(x, { instTxt: [...x.inst].join(", ") })));
-    CR.posicoes(id).forEach((p) => out.push({ tipo: "cripto", cod: p.sym, nome: p.nome, classe: "Cripto", sub: "Cripto", valor: p.valor, q: p.q, preco: p.preco, inst: p.inst }));
+    CR.posicoes(id).forEach((p) => out.push({ tipo: "cripto", cod: p.sym, nome: p.nome, classe: "Cripto", sub: "ETF de Criptomoedas", valor: p.valor, q: p.q, preco: p.preco, inst: p.inst }));
     const total = out.reduce((a, x) => a + x.valor, 0);
     out.forEach((x) => (x.pct = (x.valor / total) * 100));
     return out.sort((a, b) => b.valor - a.valor);
@@ -90,7 +68,8 @@ window.CONSOL = (function () {
   function porInstituicao(id) {
     const r = window.CART.resumo(id);
     const out = r.porInst.map((i) => ({ nome: i.nome, valor: i.valor, tipo: "Corretora" }));
-    const cr = CR.posicoes(id); if (cr.length) out.push({ nome: "Exchange cripto A", valor: cr.reduce((a, p) => a + p.valor, 0), tipo: "Carteira cripto" });
+    // ETFs de Criptomoedas ficam na B3, pela corretora em que foram comprados
+    CR.posicoes(id).forEach((p) => { const i = out.find((x) => x.nome === p.inst); if (i) i.valor += p.valor; else out.push({ nome: p.inst, valor: p.valor, tipo: "Corretora" }); });
     const tot = out.reduce((a, x) => a + x.valor, 0);
     return out.map((x, i) => Object.assign(x, { pct: (x.valor / tot) * 100, cor: window.CART.PALETA[i % 12] })).sort((a, b) => b.valor - a.valor);
   }

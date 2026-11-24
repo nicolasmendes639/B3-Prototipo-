@@ -10,13 +10,13 @@
     { id: "primeiros-passos", cat: "Começando", ic: "🧭", titulo: "Primeiros passos na Área do Investidor", desc: "As 6 abas, a busca, ocultar valores e a assistente de IA.", passos: [
       { rota: "inicio", sel: ".tabs-main, .bottom-nav", titulo: "Seis abas, tudo à mão", texto: "Início, Carteira, Proventos, Mercado, Aprender e Relatórios. No celular, elas ficam na barra de baixo." },
       { rota: "inicio", sel: ".hero", titulo: "Seu resumo", texto: "O saldo total de todas as suas contas e quanto você ganhou ou perdeu no período escolhido." },
-      { rota: "inicio", sel: "#searchBtn", titulo: "Busca", texto: "Encontre qualquer ação, FII, ETF, cripto ou página. Atalho: tecla /." },
+      { rota: "inicio", sel: "#searchBtn", titulo: "Busca", texto: "Encontre qualquer ação, FII, ETF (inclusive ETFs de Criptomoedas) ou página. Atalho: tecla /." },
       { rota: "inicio", sel: "#hideBtn", titulo: "Ocultar valores", texto: "Esconde todos os valores em reais, em todas as telas, até você desligar." },
       { rota: "inicio", sel: "#aiFab", titulo: "Assistente de IA", texto: "Tire dúvidas a qualquer momento. O chat abre ao lado, sem esconder a tela, e pode te mostrar onde clicar." },
       { rota: "inicio", sel: "#avatar", titulo: "Minha conta", texto: "Contas conectadas, permissões, portabilidade, privacidade e seu perfil de investidor." },
     ] },
     { id: "patrimonio", cat: "Meus investimentos", ic: "📊", titulo: "Entenda seu saldo e seu ganho", desc: "Saldo, ganho no período, pizza da carteira e o que mais mexeu no resultado.", passos: [
-      { rota: "inicio", sel: ".hero .saldo", titulo: "Saldo total", texto: "Soma de tudo: B3, renda fixa e fundos das corretoras e suas criptos." },
+      { rota: "inicio", sel: ".hero .saldo", titulo: "Saldo total", texto: "Soma de tudo: B3 (inclusive ETFs de Criptomoedas) e renda fixa e fundos das corretoras." },
       { rota: "inicio", sel: ".hero .ganho", titulo: "Ganho ou perda", texto: "Quanto seus investimentos valorizaram ou caíram no período, em reais e em porcentagem. Não conta dinheiro novo que você colocou." },
       { rota: "inicio", sel: ".hero .seg", titulo: "Escolha o período", texto: "Troque entre 7 dias, 30 dias, 6 meses e 12 meses. O gráfico e os números mudam juntos." },
       { rota: "inicio", sel: "[data-tour=carteira]", titulo: "Sua carteira em pizza", texto: "Cada fatia é um tipo de investimento. Ao lado, seus maiores investimentos, com o peso de cada um." },
@@ -45,10 +45,10 @@
     ] },
     { id: "acompanhamento", cat: "Mercado", ic: "👀", titulo: "Índices, acompanhamento e alertas", desc: "Acompanhe o mercado e ativos sem precisar tê-los.", passos: [
       { rota: "mercado", sel: "#tvIbov", titulo: "Índices ao vivo", texto: "Gráficos reais do Ibovespa e de outros índices, com uma explicação simples de cada um." },
-      { rota: "mercado/meus", sel: ".pick", titulo: "Seus ativos e criptos", texto: "Escolha um dos seus investimentos para ver o gráfico real ao lado da sua posição." },
+      { rota: "mercado/meus", sel: ".pick", titulo: "Seus ativos", texto: "Escolha um dos seus investimentos para ver o gráfico real ao lado da sua posição." },
       { rota: "mercado/acompanhar", sel: "#addW", titulo: "Lista de acompanhamento", texto: "Adicione ativos para acompanhar e, se quiser, crie alertas de preço. Eles começam desligados." },
     ] },
-    { id: "conexoes", cat: "Conta", ic: "🔗", titulo: "Contas conectadas e seus dados", desc: "Corretoras, exchanges, permissões e portabilidade.", passos: [
+    { id: "conexoes", cat: "Conta", ic: "🔗", titulo: "Contas conectadas e seus dados", desc: "Corretoras, bancos, permissões e portabilidade.", passos: [
       { rota: "conta/contas", sel: "#app .alert", titulo: "Situação das contas", texto: "Encontramos suas contas pelo CPF e pelas autorizações do Open Finance. Aqui você vê se alguma está desatualizada." },
       { rota: "conta/contas", sel: "#addConta", titulo: "Conectar outra conta", texto: "Escolha a instituição e autorize no app dela. Nunca pedimos sua senha aqui." },
       { rota: "conta/permissoes", sel: "#app .card", titulo: "Permissões", texto: "Veja quem pode ler seus dados e retire o acesso quando quiser." },
@@ -56,7 +56,7 @@
     { id: "documentos", cat: "Relatórios", ic: "📄", titulo: "Tabelas, extratos e informes", desc: "Onde estão os números em tabela e como exportar.", passos: [
       { rota: "relatorios", sel: "#app .card", titulo: "Tudo em tabela, num lugar só", texto: "As outras abas usam gráficos. Quando precisar conferir número por número, venha aqui." },
       { rota: "relatorios", sel: "[data-csv]", titulo: "Baixar CSV", texto: "Exporte para abrir no Excel ou enviar para o contador." },
-      { rota: "relatorios/informes", sel: "#app .alert", titulo: "Imposto de Renda", texto: "O informe ajuda, mas não inclui corretagem, ganho de capital nem cripto." },
+      { rota: "relatorios/informes", sel: "#app .alert", titulo: "Imposto de Renda", texto: "O informe ajuda, mas não inclui corretagem nem ganho de capital." },
     ] },
   ];
 
@@ -67,7 +67,7 @@
     ["O feed recomenda investimentos?", "Não. O feed escolhe conteúdos educativos e avisos sobre a sua própria carteira. Ele não sugere comprar nem vender."],
     ["Como refaço meu perfil?", "Clique no círculo no topo → Perfil do investidor → “Refazer questionário”. Também dá para perguntar à assistente de IA."],
     ["Como a IA sabe dos meus números?", "A assistente recebe um resumo da tela e da sua carteira para responder. Ela explica e guia, mas não recomenda investimentos."],
-    ["De onde vêm os gráficos ao vivo?", "Os gráficos marcados como “ao vivo” usam cotações reais do TradingView, e os preços de cripto vêm do CoinGecko. O restante do protótipo usa dados de teste."],
+    ["De onde vêm os gráficos ao vivo?", "Os gráficos marcados como “ao vivo” usam cotações reais do TradingView, inclusive as dos ETFs de Criptomoedas da B3. O restante do protótipo usa dados de teste."],
     ["Quem pode ver meus dados?", "Somente as empresas que você autorizou em Conexões e dados → Permissões de compartilhamento. Lá você também pode retirar o acesso."],
     ["Posso negociar pela Área do Investidor?", "Não. Compras e vendas são feitas pela sua corretora. A Área do Investidor serve para consultar, entender e resolver."],
   ];
@@ -159,14 +159,14 @@
   // ======================================================================
   const mock = {
     inicio: `<div class="mk mk-hero"><img src="assets/b3-logo.png" alt=""><div class="mk-lines"><i style="width:70%"></i><i style="width:50%"></i></div><div class="mk-row"><b></b><b></b><b></b></div></div>`,
-    contas: `<div class="conn-list">${[["B3", "#06377b", "B3 · pelo seu CPF", "Ações, FIIs, ETFs e Tesouro"], ["CO", "#0e7c86", "Sua corretora", "Open Finance · renda fixa e fundos"], ["BC", "#7a3db8", "Seu banco", "Open Finance · CDB, LCI, LCA"], ["₿", "#f7931a", "Sua exchange cripto", "Bitcoin, Ethereum…"]].map((x, k) => `<div class="conn" style="animation-delay:${k * 0.45}s"><span class="lg" style="background:${x[1]}">${x[0]}</span><div><b>${x[2]}</b><small>${x[3]}</small></div><span class="st chip ok">✓</span></div>`).join("")}</div>`,
+    contas: `<div class="conn-list">${[["B3", "#06377b", "B3 · pelo seu CPF", "Ações, FIIs, ETFs e Tesouro"], ["CO", "#0e7c86", "Sua corretora", "Open Finance · renda fixa e fundos"], ["BC", "#7a3db8", "Seu banco", "Open Finance · CDB, LCI, LCA"]].map((x, k) => `<div class="conn" style="animation-delay:${k * 0.45}s"><span class="lg" style="background:${x[1]}">${x[0]}</span><div><b>${x[2]}</b><small>${x[3]}</small></div><span class="st chip ok">✓</span></div>`).join("")}</div>`,
     numeros: `<div class="mk" style="background:linear-gradient(135deg,#0b56b8,#06377b);color:#fff"><span style="color:#cfe0fb;font-size:14px">Saldo total da carteira</span><strong style="font-size:30px">R$ ••••••</strong><span style="background:rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;width:max-content;color:#b7f5cf;font-weight:700">▲ R$ •••• (+2,4%) em 30 dias</span><svg viewBox="0 0 300 80" class="mk-chart"><path d="M0,60 L40,52 L80,58 L120,40 L160,44 L200,28 L240,24 L300,8" fill="none" stroke="#8ff0b5" stroke-width="3"/></svg></div>`,
     ia: `<div class="mk" style="gap:8px"><div class="msg me" style="max-width:85%;align-self:flex-end;font-size:14px">Quanto eu ganhei em 30 dias?</div><div class="msg bot" style="max-width:92%;font-size:14px">Sua carteira ganhou R$ •••• (+2,4%). Quem mais ajudou foi PETR4.<div class="acts"><button>▶ Me mostre na tela</button></div></div><div style="align-self:flex-end;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0b56b8,#3b1f8f);color:#fff;display:grid;place-items:center;font-size:20px">✦</div></div>`,
     aprender: `<div class="mk"><div class="vthumb" style="background:linear-gradient(135deg,#b45309,#f59e0b);border-radius:12px;font-size:54px">🍕<span class="play">▶</span><span class="dur">1 min</span></div><b>O que é uma ação?</b><div style="display:flex;gap:8px;align-items:center"><span class="chip ok">✓ Quiz</span><span class="chip" style="background:#fff7e0;color:#8a6100">+10 XP</span></div></div>`,
     privacidade: `<div class="mk mk-priv"><div class="mk-toggle"><span>👁 Ocultar valores</span><i class="on"></i></div><div class="mk-kpi"><span>Saldo total</span><strong>R$ ••••••</strong></div><div class="mk-toggle"><span>🔔 Alertas de preço</span><i></i></div><div class="mk-toggle"><span>🔗 App de controle financeiro</span><em>Retirar acesso</em></div></div>`,
   };
   const SLIDES = [
-    { k: "inicio", kicker: "Boas-vindas", titulo: "Tudo o que você tem, em um só lugar", texto: "A nova Área do Investidor junta seus investimentos da B3, das corretoras, dos bancos e até das criptos — com gráficos simples e ajuda o tempo todo.", itens: ["Leva 1 minuto", "Dá para pular e rever depois"] },
+    { k: "inicio", kicker: "Boas-vindas", titulo: "Tudo o que você tem, em um só lugar", texto: "A nova Área do Investidor junta seus investimentos da B3, das corretoras, dos bancos e até dos ETFs de Criptomoedas — com gráficos simples e ajuda o tempo todo.", itens: ["Leva 1 minuto", "Dá para pular e rever depois"] },
     { k: "contas", kicker: "Suas contas", titulo: "Encontramos suas contas para você", texto: "Pelo seu CPF e pelas autorizações de Open Finance, trazemos tudo automaticamente. Nada de planilha ou cadastro manual.", itens: ["Nunca pedimos a senha das instituições", "Você escolhe e pode desconectar quando quiser"] },
     { k: "numeros", kicker: "Início", titulo: "Quanto você tem e quanto ganhou", texto: "Logo na primeira tela: o saldo total e quanto sua carteira ganhou ou perdeu nos últimos 30 dias, em reais e em porcentagem. Logo abaixo, a carteira em gráfico de pizza.", itens: ["Troque o período: 7 dias, 30 dias, 6 meses ou 1 ano", "Toque no “i” para entender cada número"] },
     { k: "ia", kicker: "Assistente de IA", titulo: "Uma assistente sempre ao seu lado", texto: "Toque no botão ✦ no canto da tela. O chat abre ao lado, sem esconder sua área, explica seus números e mostra onde clicar.", itens: ["Pergunte em português, do seu jeito", "Ela guia — não recomenda investimentos"] },

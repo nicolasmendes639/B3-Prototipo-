@@ -100,14 +100,14 @@
   const abrirBusca = () => { fecharPops(); sp.classList.add("open"); q.focus(); };
   document.getElementById("searchBtn").addEventListener("click", (e) => { e.stopPropagation(); sp.classList.contains("open") ? fecharPops() : abrirBusca(); });
   document.addEventListener("keydown", (e) => { if (e.key === "/" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); abrirBusca(); } });
-  const paginas = [["Início", "#/inicio", "saldo lucro ganho resumo"], ["Carteira", "#/carteira", "distribuicao pizza"], ["Rentabilidade × CDI", "#/carteira/rentabilidade", "cdi ibovespa rentabilidade"], ["Proventos", "#/proventos", "dividendos jcp rendimentos"], ["Calendário de proventos", "#/proventos/calendario", "data-com data com calendario"], ["Assembleias", "#/proventos/assembleias", "voto"], ["Índices ao vivo", "#/mercado", "ibovespa dolar indices"], ["Acompanhamento e alertas", "#/mercado/acompanhar", "alerta watchlist"], ["Comparar ativos", "#/mercado/comparar", "comparar"], ["Ofertas públicas", "#/mercado/ofertas", "ipo oferta"], ["Vídeos para iniciantes", "#/aprender", "video aula iniciante aprender"], ["Feed para você", "#/aprender/para-voce", "feed conteudo"], ["Questionário de perfil", "#/aprender/perfil", "perfil suitability"], ["Ajuda e tutoriais", "#/aprender/site", "ajuda tour tutorial"], ["Relatórios e extratos", "#/relatorios", "tabela extrato csv exportar"], ["Informe de IR", "#/relatorios/informes", "imposto ir informe"], ["Contas conectadas", "#/conta/contas", "corretora exchange conectar"], ["Portabilidade", "#/conta/portabilidade", "transferir"]];
+  const paginas = [["Início", "#/inicio", "saldo lucro ganho resumo"], ["Carteira", "#/carteira", "distribuicao pizza"], ["Rentabilidade × CDI", "#/carteira/rentabilidade", "cdi ibovespa rentabilidade"], ["Proventos", "#/proventos", "dividendos jcp rendimentos"], ["Calendário de proventos", "#/proventos/calendario", "data-com data com calendario"], ["Assembleias", "#/proventos/assembleias", "voto"], ["Índices ao vivo", "#/mercado", "ibovespa dolar indices"], ["Acompanhamento e alertas", "#/mercado/acompanhar", "alerta watchlist"], ["Comparar ativos", "#/mercado/comparar", "comparar"], ["Ofertas públicas", "#/mercado/ofertas", "ipo oferta"], ["Vídeos para iniciantes", "#/aprender", "video aula iniciante aprender"], ["Feed para você", "#/aprender/para-voce", "feed conteudo"], ["Questionário de perfil", "#/aprender/perfil", "perfil suitability"], ["Ajuda e tutoriais", "#/aprender/site", "ajuda tour tutorial"], ["Relatórios e extratos", "#/relatorios", "tabela extrato csv exportar"], ["Informe de IR", "#/relatorios/informes", "imposto ir informe"], ["Contas conectadas", "#/conta/contas", "corretora banco conectar"], ["Portabilidade", "#/conta/portabilidade", "transferir"]];
   let sel = -1, res = [];
   function buscar(txt) {
     const t = U.normaliza(txt.trim()); if (!t) return [];
     const held = new Set(window.CART.resumo(invId).ativos.map((a) => a.tk));
     const at = Object.entries(C.ativos).filter(([tk, m]) => U.normaliza(tk + " " + m.nome + " " + (m.empresa || "") + " " + m.setor).includes(t)).slice(0, 5)
       .map(([tk, m]) => ({ h: `<span class="tk">${U.esc(tk)}</span><span>${U.esc(m.nome)}<br><small class="muted">${U.esc(m.setor)}</small></span>${held.has(tk) ? '<span class="chip blue">Na carteira</span>' : ""}`, u: "#/ativo/" + U.slug(tk) }));
-    const cr = Object.entries(CR.MOEDAS).filter(([s, m]) => U.normaliza(s + " " + m.nome + " cripto").includes(t)).map(([s, m]) => ({ h: `<span class="tk">${s}</span><span>${m.nome}<br><small class="muted">Cripto · ao vivo</small></span>`, u: "#/mercado/meus/" + s }));
+    const cr = Object.entries(CR.MOEDAS).filter(([s, m]) => U.normaliza(s + " " + m.nome + " etf fundo criptomoedas cripto").includes(t)).map(([s, m]) => ({ h: `<span class="tk">${s}</span><span>${m.nome}<br><small class="muted">ETF de Criptomoedas · B3</small></span>`, u: "#/mercado/meus/" + s }));
     const pg = paginas.filter(([n, , k]) => U.normaliza(n + " " + k).includes(t)).slice(0, 3).map(([n, u]) => ({ h: `<span class="tk">Página</span><span>${n}</span>`, u }));
     return at.concat(cr, pg);
   }
@@ -127,6 +127,4 @@
   if (!U.store.get("onb:visto", false)) history.replaceState(null, "", location.pathname + location.search + "#/boas-vindas");
   render();
   ultima = parse().rota + "/" + (parse().params[0] || "");
-  // preços de cripto ao vivo: atualiza as telas quando chegarem
-  CR.carregar().then((ok) => { if (ok && /^#\/(inicio|carteira|mercado|relatorios)?/.test(location.hash || "#/inicio") && !document.querySelector(".tour-pop") && !document.getElementById("playerWrap")) render(); });
 })();

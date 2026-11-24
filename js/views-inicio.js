@@ -40,7 +40,7 @@ window.VIEWS = window.VIEWS || {};
       <section class="hero" data-tour="hero" aria-label="Resumo do patrimônio">
         <div class="hero-grid">
           <div>
-            <div class="lbl">Saldo total da carteira ${U.info("Soma de tudo o que está nas suas contas conectadas: B3 (ações, FIIs, ETFs, Tesouro), renda fixa e fundos das corretoras e suas carteiras cripto. Cripto usa preço ao vivo quando disponível.")}</div>
+            <div class="lbl">Saldo total da carteira ${U.info("Soma de tudo o que está nas suas contas conectadas: B3 (ações, FIIs, ETFs, Tesouro), renda fixa e fundos das corretoras e seus ETFs de Criptomoedas.")}</div>
             <div class="saldo">${U.brl(res.fim)}</div>
             <div class="ganho ${up ? "up" : "down"}" data-tour="ganho"><span aria-hidden="true">${up ? "▲" : "▼"}</span> ${sinalBrl(res.ganho)} <span style="opacity:.85">(${up ? "+" : ""}${U.num(res.pct, 2)}%)</span></div>
             <div class="hero-sub">${up ? "Você ganhou" : "Sua carteira caiu"} ${perTxt[p]} ${U.info("Variação de mercado da sua carteira atual no período: quanto os seus investimentos valorizaram ou desvalorizaram. Não conta dinheiro novo que você colocou ou tirou.", "Como calculamos")}</div>
@@ -48,7 +48,7 @@ window.VIEWS = window.VIEWS || {};
           </div>
           <div class="chart" id="chHero" style="min-height:200px"></div>
         </div>
-        <div class="hero-mini"><div>Na B3 e corretoras<b>${U.brl(res.fim - cr)}</b></div>${cr ? `<div>Cripto ${CR.estado.aoVivo ? "· ao vivo" : ""}<b>${U.brl(cr)}</b></div>` : ""}<div>Proventos a receber<b>${U.brl(anu)}</b></div></div>
+        <div class="hero-mini"><div>Na B3 e corretoras<b>${U.brl(res.fim - cr)}</b></div>${cr ? `<div>ETFs de Criptomoedas<b>${U.brl(cr)}</b></div>` : ""}<div>Proventos a receber<b>${U.brl(anu)}</b></div></div>
       </section>
       ${r.pendInst ? `<div class="alert section"><span class="ic">⚠️</span><div><b>${r.pendInst} ainda não atualizou sua posição.</b><p>O saldo usa a última posição recebida (19/11). <a href="#/conta/contas">Ver o que falta</a></p></div></div>` : ""}
       <section class="card section" data-tour="carteira"><div class="card-h"><div><h2>Minha carteira</h2><div class="sub">Como seu dinheiro está dividido</div></div><a class="btn sm" href="#/carteira">Ver carteira completa →</a></div>
@@ -91,10 +91,10 @@ window.VIEWS = window.VIEWS || {};
       let corpo = "";
       if (!aba) {
         const inst = K.porInstituicao(id);
-        const tipos = {}; its.forEach((x) => { const k = x.tipo === "cripto" ? "Cripto" : U.rotuloTipo(x.sub); tipos[k] = (tipos[k] || 0) + x.valor; });
+        const tipos = {}; its.forEach((x) => { const k = x.tipo === "cripto" ? "ETFs de Criptomoedas" : U.rotuloTipo(x.sub); tipos[k] = (tipos[k] || 0) + x.valor; });
         corpo = `<div class="grid g2">
           <section class="card"><div class="card-h"><div><h2>Por classe</h2><div class="sub">Quanto de cada tipo de investimento</div></div></div><div class="alloc" style="grid-template-columns:1fr"><div id="dCl" style="display:grid;place-items:center"></div><div class="legend-big">${K.porClasse(id).map((c) => `<div class="row"><span class="dot" style="background:${c.cor}"></span>${c.nome}<b>${U.brl(c.valor)} · ${U.num(c.pct, 1)}%</b></div>`).join("")}</div></div></section>
-          <section class="card"><div class="card-h"><div><h2>Por conta</h2><div class="sub">Corretoras e carteiras conectadas</div></div><a class="small" href="#/conta/contas">Gerenciar</a></div>
+          <section class="card"><div class="card-h"><div><h2>Por conta</h2><div class="sub">Corretoras e bancos conectados</div></div><a class="small" href="#/conta/contas">Gerenciar</a></div>
             ${inst.map((i) => `<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px;gap:8px"><span><b>${i.nome}</b> <span class="small muted">${i.tipo}</span> ${i.nome === r.pendInst ? '<span class="chip warn">aguardando</span>' : ""}</span><b class="num">${U.brl(i.valor)}</b></div><div class="bar" style="height:10px"><i style="width:${i.pct}%;background:${i.cor}"></i></div></div>`).join("")}</section>
         </div>
         <section class="card section"><div class="card-h"><div><h2>Por tipo de produto</h2></div></div><div class="chart" id="chTipos"></div></section>`;
@@ -104,7 +104,7 @@ window.VIEWS = window.VIEWS || {};
           <div class="grid g3 section">${kpi("Sua carteira (12m)", U.sinal(r.rent.at(-1)[1]), "Rentabilidade acumulada")}${kpi("CDI (12m)", U.sinal(r.cdi.at(-1)[1]), "Referência de renda fixa")}${kpi("Ibovespa (12m)", U.sinal(r.ibov.at(-1)[1]), "Referência de ações")}</div>
           <section class="card section"><div class="card-h"><div><h2>Quem ganhou e quem perdeu</h2><div class="sub">Contribuição de cada investimento ${perTxt[p]}</div></div><div class="seg" role="group">${Object.keys(K.PERIODOS).map((k) => `<button data-per="${k}" aria-pressed="${k === p}">${k}</button>`).join("")}</div></div><div id="chContrib2"></div></section>`;
       } else if (aba === "ativos") {
-        const grupos = [["Ações, FIIs e ETFs", (x) => x.classe === "Renda variavel"], ["Tesouro Direto", (x) => x.classe === "Tesouro Direto"], ["Renda fixa e fundos", (x) => x.tipo === "rf"], ["Cripto", (x) => x.tipo === "cripto"]];
+        const grupos = [["Ações, FIIs e ETFs", (x) => x.classe === "Renda variavel"], ["Tesouro Direto", (x) => x.classe === "Tesouro Direto"], ["Renda fixa e fundos", (x) => x.tipo === "rf"], ["ETFs de Criptomoedas", (x) => x.tipo === "cripto"]];
         corpo = grupos.map(([t, f]) => { const g = its.filter(f); if (!g.length) return ""; const tot = g.reduce((a, x) => a + x.valor, 0); return `<section class="card section"><div class="card-h"><h2>${t}</h2><b class="num">${U.brl(tot)}</b></div><div class="grid g2">${g.map((x) => { const cot = x.tipo === "b3" ? M.cotacoes[x.cod] : null; return `<a class="pos" href="${hrefItem(x)}" style="border:1px solid var(--line)">${logo(x)}<div class="nm"><b>${U.esc(x.tipo === "rf" ? x.nome : x.cod)}</b><span>${U.esc(x.tipo === "rf" ? x.instTxt : x.nome)}</span></div><div class="vl"><b>${U.brl(x.valor)}</b>${cot ? CH.spark(cot.serie.slice(-60).map((s) => s[1]), cot.var12m >= 0 ? "#16a34a" : "#dc2626", 90, 24) : x.tipo === "cripto" ? U.sinal(CR.MOEDAS[x.cod].ch.d30) : '<span class="small muted">rende ~CDI</span>'}</div></a>`; }).join("")}</div></section>`; }).join("") + '<p class="small muted">Quer ver em tabela? <a href="#/relatorios">Relatórios</a> tem a posição completa para exportar.</p>';
       } else if (aba === "movimentacoes") {
         const ult = r.inv.mov.slice(-8).reverse();

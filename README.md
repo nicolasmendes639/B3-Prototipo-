@@ -1,12 +1,12 @@
 # Área do Investidor B3: protótipo (v2, versão atual)
 
-Protótipo navegável de uma nova **Área do Investidor da B3**. Ele junta em um só lugar tudo o que o investidor tem (B3, corretoras, bancos e cripto), mostra os números em gráficos simples e tem uma **assistente de IA** que abre ao lado da tela.
+Protótipo navegável de uma nova **Área do Investidor da B3**. Ele junta em um só lugar tudo o que o investidor tem (B3, corretoras e bancos, inclusive ETFs de Criptomoedas), mostra os números em gráficos simples e tem uma **assistente de IA** que abre ao lado da tela.
 
 🔗 **Site:** https://nicolasmendes639.github.io/B3-Prototipo-/
 🛠️ **Guia para desenvolvedores:** https://nicolasmendes639.github.io/B3-Prototipo-/dev.html
 🕰️ **Versão antiga (v1):** https://nicolasmendes639.github.io/B3-Prototipo-/versao-antiga-v1/
 
-> ⚠️ Projeto conceitual, sem vínculo oficial com a B3. Os dados de carteira são fictícios. Os gráficos marcados como **“ao vivo”** usam cotações reais do TradingView e do CoinGecko. Nada aqui é recomendação de investimento.
+> ⚠️ Projeto conceitual, sem vínculo oficial com a B3. Os dados de carteira são fictícios. Os gráficos marcados como **“ao vivo”** usam cotações reais do TradingView. Nada aqui é recomendação de investimento.
 
 ---
 
@@ -17,7 +17,7 @@ Protótipo navegável de uma nova **Área do Investidor da B3**. Ele junta em um
 | **Início** | Saldo total e quanto a carteira **ganhou ou perdeu nos últimos 30 dias**, em R$ e % (também 7D, 6M e 12M). Logo abaixo vêm a carteira em gráfico de pizza, o que mais pesou no resultado e os próximos recebimentos. |
 | **Carteira** | Distribuição por classe, conta e tipo; rentabilidade × CDI × Ibovespa; todos os investimentos; entradas e saídas. |
 | **Proventos** | Pago × anunciado, mês a mês, calendário visual (data-com, data ex e pagamento) e assembleias. |
-| **Mercado** | Gráficos **reais** dos índices e dos ativos e criptos do investidor; destaques; acompanhamento e alertas; comparador; ofertas. |
+| **Mercado** | Gráficos **reais** dos índices e dos ativos do investidor (inclusive ETFs de Criptomoedas); destaques; acompanhamento e alertas; comparador; ofertas. |
 | **Aprender** | 8 vídeos animados de cerca de 1 minuto para iniciantes, com quiz e XP; glossário; feed por perfil; questionário de perfil; tutoriais guiados. |
 | **Relatórios** | O único lugar com tabelas: posição, movimentações e proventos, exportação em CSV e informes de IR. |
 
@@ -48,7 +48,7 @@ js/views-conta.js     Relatórios e Minha conta
 js/videos.js          roteiro e player dos vídeos
 js/chat.js            assistente de IA
 js/tutoriais.js       boas-vindas e tours guiados
-js/cripto.js          cripto ao vivo + consolidação das contas
+js/cripto.js          ETFs de Criptomoedas + consolidação das contas
 js/data.js            dados fictícios dos 100 investidores
 server.py             servidor local + IA real (opcional)
 versao-antiga-v1/     v1 guardada (arquivo único)

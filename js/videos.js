@@ -47,15 +47,15 @@ window.VIDEOS = (function () {
     { id: "risco", titulo: "Risco e retorno: bike ou montanha-russa?", emoji: "🎢", cor: "linear-gradient(135deg,#b3261e,#f97316)", dur: "1 min", cenas: [
       { v: `<div class="row"><span class="big">🚲</span><span class="tag">vs</span><span class="big">🎢</span></div><h3>Cada investimento é um tipo de passeio</h3>`, t: "Investir é escolher o passeio: tem os tranquilos, como uma bike, e os radicais, como uma montanha-russa." },
       { v: `${svgLinha("M10,80 L310,40", "#86efac")}<h3>Renda fixa: caminho mais previsível</h3>`, t: "A renda fixa costuma ser um caminho mais previsível, com menos sustos." },
-      { v: `${svgLinha("M10,90 L50,30 L90,95 L130,20 L170,85 L210,15 L250,70 L310,5", "#fca5a5")}<h3>Ações e cripto: mais sobe-e-desce</h3>`, t: "Ações e cripto sobem e descem bastante. Podem render mais no longo prazo, mas com mais emoção." },
+      { v: `${svgLinha("M10,90 L50,30 L90,95 L130,20 L170,85 L210,15 L250,70 L310,5", "#fca5a5")}<h3>Ações e ETFs de Criptomoedas: mais sobe-e-desce</h3>`, t: "Ações e ETFs de Criptomoedas sobem e descem bastante. Podem render mais no longo prazo, mas com mais emoção." },
       { v: `<div class="em">🧭</div><h3>Seu perfil diz qual passeio combina com você</h3>`, t: "O questionário de perfil ajuda a entender quanto sobe-e-desce você aguenta." },
     ], quiz: { p: "Em geral, mais chance de retorno vem com…", o: ["Menos risco", "Mais risco", "Nenhum risco"], c: 1, e: "Isso! Retorno maior costuma vir com mais oscilação." } },
-    { id: "cripto", titulo: "O que é cripto?", emoji: "🪙", cor: "linear-gradient(135deg,#f7931a,#fbbf24)", dur: "1 min", cenas: [
-      { v: `<div class="em float">🪙</div><h3>Dinheiro 100% digital</h3>`, t: "Criptomoedas são moedas totalmente digitais, como o Bitcoin." },
-      { v: `<div class="row"><span class="big">🧱</span><span class="big">🔗</span><span class="big">🧱</span><span class="big">🔗</span><span class="big">🧱</span></div><h3>Blockchain: um livro-caixa público</h3>`, t: "As transações ficam numa blockchain: um livro-caixa público, com blocos ligados como uma corrente." },
-      { v: `<div class="em shake">🎢</div><h3>Oscila muito — e 24 horas por dia</h3>`, t: "O preço oscila muito, a qualquer hora, inclusive fim de semana." },
-      { v: `<div class="row"><span class="tag">Exchange</span><span class="tag">ETF de cripto na B3</span></div><h3>Onde ficam?</h3>`, t: "Cripto comprada direto fica numa exchange, não na B3. Na bolsa, existem ETFs de cripto." },
-    ], quiz: { p: "O Bitcoin comprado numa exchange fica…", o: ["Sob custódia da B3", "Na sua exchange / carteira", "No Tesouro Direto"], c: 1, e: "Certo! Por isso conectamos sua exchange para mostrar tudo junto aqui." } },
+    { id: "cripto", titulo: "O que são ETFs de Criptomoedas?", emoji: "🪙", cor: "linear-gradient(135deg,#f7931a,#fbbf24)", dur: "1 min", cenas: [
+      { v: `<div class="em float">🪙</div><h3>Criptomoedas na bolsa?</h3>`, t: "A B3 não intermedia a compra direta de criptomoedas. Na bolsa, o que existe são ETFs e Fundos de Criptomoedas." },
+      { v: `<div class="row"><span class="big">🧺</span><span class="tag">cotas na B3</span></div><h3>Um fundo negociado como uma ação</h3>`, t: "Um ETF de Criptomoedas é um fundo com cotas negociadas na B3. Ele acompanha o preço de uma cripto, como o Bitcoin, ou de um índice de criptos." },
+      { v: `<div class="em shake">🎢</div><h3>Oscila muito</h3>`, t: "As cotas acompanham o preço das criptos, que oscila muito. É um investimento de alto risco." },
+      { v: `<div class="row"><span class="tag">Sua corretora</span><span class="tag">Custódia na B3</span></div><h3>Onde ficam?</h3>`, t: "Você compra pela sua corretora, e as cotas ficam sob custódia da B3. Por isso aparecem aqui, junto com o resto da carteira." },
+    ], quiz: { p: "As cotas de um ETF de Criptomoedas compradas na bolsa ficam…", o: ["Numa exchange de cripto", "Sob custódia da B3", "No Tesouro Direto"], c: 1, e: "Certo! É um fundo negociado na B3, por isso aparece aqui junto com seus outros investimentos." } },
   ];
 
   const feitos = () => new Set(U.store.get("videos:feitos", []));

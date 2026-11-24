@@ -225,7 +225,7 @@
   V["nao-encontrado"] = { html: () => `<div class="empty"><div class="big">🧭</div><h2>Página não encontrada</h2><p><a href="#/para-voce">Voltar ao início</a></p></div>` };
 })(window.VIEWS);
 
-/* ===== V2: aba Mercado com gráficos reais (TradingView) e cripto ao vivo (CoinGecko) ===== */
+/* ===== V2: aba Mercado com gráficos reais (TradingView), incluindo os ETFs de Criptomoedas da B3 ===== */
 (function (V) {
   const U = window.U, C = window.CATALOGO, M = window.MERCADO, CR = window.CRIPTO;
 
@@ -250,13 +250,13 @@
     { sym: "BMFBOVESPA:SMLL", nome: "Small Caps", o: "Empresas menores da bolsa: podem crescer mais, mas oscilam mais." },
     { sym: "FX_IDC:USDBRL", nome: "Dólar", o: "Quantos reais custa 1 dólar. Afeta importados, viagens e ETFs internacionais." },
     { sym: "SP:SPX", nome: "S&P 500", o: "As 500 maiores empresas dos EUA — referência do mercado global." },
-    { sym: "BINANCE:BTCBRL", nome: "Bitcoin", o: "A maior criptomoeda, cotada em reais. Funciona 24h por dia, 7 dias por semana." },
+    { sym: "BMFBOVESPA:QBTC11", nome: "ETF de Bitcoin (QBTC11)", o: "ETF de Criptomoedas negociado na B3: acompanha o Bitcoin em reais, sem precisar comprar cripto direto." },
   ];
 
   V.mercado = {
     html(ctx) {
       const { r, params, id } = ctx, aba = params[0] || "";
-      const abas = [["", "Índices"], ["meus", "Meus ativos e cripto"], ["destaques", "Destaques do dia"], ["acompanhar", "Acompanhamento"], ["comparar", "Comparar"], ["ofertas", "Ofertas públicas"]];
+      const abas = [["", "Índices"], ["meus", "Meus ativos"], ["destaques", "Destaques do dia"], ["acompanhar", "Acompanhamento"], ["comparar", "Comparar"], ["ofertas", "Ofertas públicas"]];
       let corpo = "";
       if (!aba) {
         corpo = `<section class="card"><div class="card-h"><div><h2>Ibovespa</h2><div class="sub">Gráfico real · 12 meses · arraste e use a roda do mouse para explorar</div></div><span class="real-badge">ao vivo</span></div><div class="tv-box" id="tvIbov"></div></section>
@@ -271,20 +271,20 @@
         const pos = isCr ? cr.find((p) => p.sym === sel) : rv.find((a) => a.tk === sel);
         const m = isCr ? CR.MOEDAS[sel] : null;
         corpo = `<div class="pick" role="group" aria-label="Escolha o ativo">${rv.map((a) => `<button data-sel="${a.tk}" aria-pressed="${a.tk === sel}"><b>${a.tk}</b><span>${U.brl(a.valor)}</span></button>`).join("")}${cr.map((p) => `<button data-sel="${p.sym}" aria-pressed="${p.sym === sel}"><b>${p.sym} <span style="color:${CR.MOEDAS[p.sym].cor}">●</span></b><span>${U.brl(p.valor)}</span></button>`).join("")}</div>
-          ${sel ? `<div class="grid g-main"><section class="card"><div class="card-h"><div><h2>${U.esc(sel)} · ${U.esc(isCr ? m.nome : C.ativos[sel].nome)}</h2><div class="sub">${isCr ? "Cotação real em reais (Binance)" : "Cotação real na B3"}</div></div><span class="real-badge">ao vivo</span></div><div class="tv-box" id="tvMeu"></div></section>
+          ${sel && pos ? `<div class="grid g-main"><section class="card"><div class="card-h"><div><h2>${U.esc(sel)} · ${U.esc(isCr ? m.nome : C.ativos[sel].nome)}</h2><div class="sub">Cotação real na B3</div></div><span class="real-badge">ao vivo</span></div><div class="tv-box" id="tvMeu"></div></section>
             <section class="card"><h2>Sua posição</h2>
               <div class="kpi" style="margin-top:12px"><div class="lbl">Quantidade</div><div class="val">${U.qtd(pos.q)}</div></div>
-              <div class="kpi" style="margin-top:12px"><div class="lbl">Valor ${isCr && CR.estado.aoVivo ? "(preço ao vivo)" : "(data-base)"}</div><div class="val">${U.brl(pos.valor)}</div></div>
-              ${isCr ? `<div class="kpi" style="margin-top:12px"><div class="lbl">Preço agora</div><div class="val">R$ ${U.num(m.preco, 2)}</div><div class="det">24h ${U.sinal(m.ch.d1)} · 30 dias ${U.sinal(m.ch.d30)}</div></div>
-                <div class="alert info-a" style="margin-top:14px"><span class="ic">ℹ️</span><div><p>Cripto não fica sob custódia da B3: estes dados vêm da sua exchange conectada. O preço oscila 24h por dia.</p></div></div>`
+              <div class="kpi" style="margin-top:12px"><div class="lbl">Valor (data-base)</div><div class="val">${U.brl(pos.valor)}</div></div>
+              ${isCr ? `<div class="kpi" style="margin-top:12px"><div class="lbl">Preço da cota</div><div class="val">R$ ${U.num(m.preco, 2)}</div><div class="det">Dia ${U.sinal(m.ch.d1)} · 30 dias ${U.sinal(m.ch.d30)}</div></div>
+                <div class="alert info-a" style="margin-top:14px"><span class="ic">ℹ️</span><div><p>Este é um ETF de Criptomoedas: um fundo negociado na B3, sob custódia da B3, que acompanha o preço da cripto. A B3 não intermedia a compra direta de criptomoedas.</p></div></div>`
               : `<a class="btn" style="margin-top:16px" href="#/ativo/${sel}">Ficha completa do ativo →</a>`}
-              <button class="btn ghost" style="margin-top:8px" data-ask="Me explique como ler o gráfico de ${sel}">✦ Perguntar à IA sobre ${U.esc(sel)}</button></section></div>` : '<div class="card empty">Você ainda não tem ações ou cripto para mostrar.</div>'}`;
+              <button class="btn ghost" style="margin-top:8px" data-ask="Me explique como ler o gráfico de ${sel}">✦ Perguntar à IA sobre ${U.esc(sel)}</button></section></div>` : `<div class="card empty">${sel ? `Você não tem ${U.esc(sel)} na carteira.` : "Você ainda não tem ações ou ETFs para mostrar."}</div>`}`;
         ctx._tvSym = sym;
       } else if (aba === "destaques") corpo = V.destaques.html(ctx);
       else if (aba === "acompanhar") corpo = V.acompanhamento.html(ctx).replace(/<div class="crumb">Mercado<\/div><h1>[^<]*<\/h1>/, "<h2>Lista de acompanhamento</h2>");
       else if (aba === "comparar") corpo = V.comparar.html(Object.assign({}, ctx, { params: params.slice(1) })).replace(/<div class="crumb">Mercado<\/div><h1>[^<]*<\/h1>/, "<h2>Comparar ativos</h2>");
       else if (aba === "ofertas") corpo = V.ofertas.html(ctx).replace(/<div class="crumb">Serviços B3<\/div><h1>[^<]*<\/h1>/, "<h2>Ofertas públicas</h2>");
-      return `<div class="page-head"><div><h1>Mercado</h1><p>Índices e cotações reais, seus ativos e criptos em gráfico</p></div></div>${V._sub("mercado", aba, abas)}${corpo}`;
+      return `<div class="page-head"><div><h1>Mercado</h1><p>Índices e cotações reais, seus ativos em gráfico</p></div></div>${V._sub("mercado", aba, abas)}${corpo}`;
     },
     after(ctx) {
       const { params } = ctx, aba = params[0] || "";
