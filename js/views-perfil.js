@@ -70,7 +70,7 @@
       const salvo = U.store.get("perfil:" + id, null);
       if (salvo && !quiz.editando) {
         const P = C.perfis[salvo.perfil];
-        return `<div class="page-head"><div><div class="crumb">Para você</div><h1>Perfil do investidor</h1><p>${salvo.simulado ? "Perfil escolhido manualmente para teste" : "Resultado do questionário de " + U.data(salvo.data)}</p></div></div>
+        return `<div class="page-head"><div><h1>Meu Perfil de Investidor</h1><p>${salvo.simulado ? "Perfil escolhido manualmente para teste" : "Resultado do questionário de " + U.data(salvo.data)}</p></div></div>
         <div class="grid g2"><div class="card profile-card"><div class="small muted">Seu perfil</div><div style="font-size:32px;font-weight:800">${P.nome}</div>
           <div class="gauge">${[1, 2, 3].map((n) => `<span class="${n <= { con: 1, mod: 2, arr: 3 }[salvo.perfil] ? "on" : ""}"></span>`).join("")}</div><p>${P.desc}</p>
           ${salvo.pontos !== undefined ? `<p class="small">Pontuação de risco: ${salvo.pontos} de ${salvo.max}</p>` : ""}
@@ -84,7 +84,7 @@
           <div class="alert info-a"><span class="ic">ℹ️</span><div><p>Esta é uma simulação educativa para personalizar conteúdos. O perfil oficial de adequação (suitability, Resolução CVM 30) é feito pela sua corretora.</p></div></div></div></div>`;
       }
       const Q = C.questionario, q = Q[quiz.passo], r = quiz.resp[q.id];
-      return `<div class="page-head"><div><div class="crumb">Para você</div><h1>Questionário de perfil</h1><p>8 perguntas · cerca de 2 minutos · suas respostas ficam neste navegador</p></div></div>
+      return `<div class="page-head"><div><div class="crumb">Meu Perfil de Investidor</div><h1>Questionário de perfil</h1><p>8 perguntas · cerca de 2 minutos · suas respostas ficam neste navegador</p></div></div>
       <div class="card quiz"><div class="small muted">Pergunta ${quiz.passo + 1} de ${Q.length}</div><div class="progress"><i style="width:${(quiz.passo / Q.length) * 100}%"></i></div>
         <fieldset style="border:0;padding:0;margin:0"><legend><h2 style="font-size:19px;margin-bottom:16px">${q.titulo}</h2></legend>
         ${q.opcoes.map((o, i) => `<label class="opt"><input type="${q.tipo === "multi" ? "checkbox" : "radio"}" name="q" value="${i}" ${q.tipo === "multi" ? ((r || []).includes(i) ? "checked" : "") : r === i ? "checked" : ""}> <span>${o.t}</span></label>`).join("")}</fieldset>

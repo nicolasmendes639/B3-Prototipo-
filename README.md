@@ -10,7 +10,7 @@ Protótipo navegável de uma nova **Área do Investidor da B3**. Ele junta em um
 
 ---
 
-## ✨ As 6 abas
+## ✨ As 7 abas
 
 | Aba | O que tem |
 |---|---|
@@ -18,8 +18,9 @@ Protótipo navegável de uma nova **Área do Investidor da B3**. Ele junta em um
 | **Carteira** | Distribuição por classe, conta e tipo; rentabilidade × CDI × Ibovespa; todos os investimentos; entradas e saídas. |
 | **Proventos** | Pago × anunciado, mês a mês, calendário visual (data-com, data ex e pagamento) e assembleias. |
 | **Mercado** | Gráficos **reais** dos índices e dos ativos do investidor (inclusive ETFs de Criptomoedas); destaques; acompanhamento e alertas; comparador; ofertas. |
-| **Aprender** | 8 vídeos animados de cerca de 1 minuto para iniciantes, com quiz e XP; glossário; feed por perfil; questionário de perfil; tutoriais guiados. |
+| **Aprender** | 8 vídeos animados de cerca de 1 minuto para iniciantes, com quiz e XP; glossário; feed por perfil; tutoriais guiados. |
 | **Relatórios** | O único lugar com tabelas: posição, movimentações e proventos, exportação em CSV e informes de IR. |
+| **Meu Perfil de Investidor** | Questionário de perfil (8 perguntas, ~2 min), resultado e botão para refazer. Ao entrar no site, quem ainda não respondeu recebe um convite, com a opção “Fazer mais tarde”. |
 
 O botão **✦ Pergunte à IA**, no canto inferior direito, abre o chat ao lado da tela. No site publicado ele funciona em **modo demonstração**, com respostas locais.
 
@@ -43,7 +44,8 @@ css/styles.css        cores, fontes e componentes
 js/app.js             abas, rotas, busca, menu da conta
 js/views-inicio.js    Início, Carteira e Proventos
 js/views-mercado.js   Mercado, ficha do ativo, acompanhamento, comparador
-js/views-aprender.js  Aprender (vídeos, glossário, feed, perfil)
+js/views-aprender.js  Aprender (vídeos, glossário, feed)
+js/views-perfil.js    feed “Para você” e Meu Perfil de Investidor (questionário)
 js/views-conta.js     Relatórios e Minha conta
 js/videos.js          roteiro e player dos vídeos
 js/chat.js            assistente de IA
@@ -72,5 +74,5 @@ Use `?inv=INV-010` na URL. Os links para os 100 investidores estão no `dev.html
 
 ## 🕰️ Histórico
 
-- **v2 (atual):** 6 abas, Início no estilo da B3, gráficos reais, vídeos para iniciantes, assistente de IA, letras maiores e tabelas só em Relatórios.
+- **v2 (atual):** 7 abas, Início no estilo da B3, gráficos reais, vídeos para iniciantes, assistente de IA, letras maiores e tabelas só em Relatórios.
 - **v1:** guardada em [`versao-antiga-v1/`](versao-antiga-v1/).

@@ -49,7 +49,7 @@
 
       <section class="blk" id="produto"><h2>Produto e escopo</h2>
         <p><b>Objetivo:</b> uma área do investidor que mostre <b>tudo o que a pessoa tem</b> (B3 + corretoras + bancos, inclusive ETFs de Criptomoedas) em um só lugar, com análise visual simples, ajuda contextual por IA e educação para iniciantes.</p>
-        <ul><li><b>6 abas</b>: Início, Carteira, Proventos, Mercado, Aprender, Relatórios (+ menu “Minha conta”). Antes eram 16.</li>
+        <ul><li><b>7 abas</b>: Início, Carteira, Proventos, Mercado, Aprender, Relatórios, Meu Perfil de Investidor (+ menu “Minha conta”). Antes eram 16.</li>
           <li><b>Gráficos primeiro</b>: análises em gráfico; tabelas concentradas em <b>Relatórios</b> (conferência e exportação).</li>
           <li><b>Identificação automática</b>: o investidor é reconhecido no cadastro (CPF) e as contas são trazidas por B3 + Open Finance. Sem seletor de investidor na UI.</li>
           <li><b>Assistente de IA</b> no canto inferior direito, em painel lateral que não cobre a tela.</li>
@@ -105,7 +105,8 @@ python3 scripts/build_data.py</code></pre>
           <tr><td><code>#/proventos[/calendario|assembleias]</code></td><td>Pago × anunciado × estimado; mês a mês; ranking; calendário mensal; voto a distância</td><td>StackedBars, CalendarGrid, VoteForm</td></tr>
           <tr><td><code>#/mercado[/meus|destaques|acompanhar|comparar|ofertas]</code></td><td>Índices ao vivo, gráfico real dos ativos do investidor (inclusive ETFs de Criptomoedas), rankings, watchlist + alertas, comparador, ofertas</td><td>TradingView widgets, Picker, Watchlist</td></tr>
           <tr><td><code>#/ativo/:ticker</code></td><td>Ficha: preço, gráfico ao vivo, indicadores explicados, proventos, conteúdos relacionados</td><td>AssetHeader, IndicatorGrid</td></tr>
-          <tr><td><code>#/aprender[/para-voce|perfil|site]</code></td><td>Vídeos + quiz + XP, glossário, feed por perfil, questionário, tutoriais e FAQ</td><td>VideoPlayer, Quiz, FeedCard, Tour</td></tr>
+          <tr><td><code>#/aprender[/para-voce|site]</code></td><td>Vídeos + quiz + XP, glossário, feed por perfil, tutoriais e FAQ</td><td>VideoPlayer, Quiz, FeedCard, Tour</td></tr>
+          <tr><td><code>#/perfil</code></td><td>Meu Perfil de Investidor: questionário, resultado e refazer. Convite ao entrar (uma vez por visita) para quem ainda não respondeu, com “Fazer mais tarde”</td><td>Quiz, Dialog</td></tr>
           <tr><td><code>#/relatorios[/movimentacoes|proventos|informes]</code></td><td>Únicas tabelas do produto + exportação CSV + informes de IR</td><td>DataTable, Export</td></tr>
           <tr><td><code>#/conta/(contas|permissoes|portabilidade|privacidade)</code></td><td>Contas conectadas e status, permissões de APIs, portabilidade, notificações</td><td>ConnectionList, Stepper</td></tr>
           <tr><td><code>#/boas-vindas</code></td><td>Onboarding de 6 etapas no primeiro acesso + escolha do ponto de partida</td><td>Slides, ChoiceCards</td></tr>

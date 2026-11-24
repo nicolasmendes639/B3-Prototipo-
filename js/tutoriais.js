@@ -7,7 +7,7 @@
   // (seletor CSS), título, texto e uma ação opcional antes de destacar.
   // ======================================================================
   const TUTORIAIS = [
-    { id: "primeiros-passos", cat: "Começando", ic: "🧭", titulo: "Primeiros passos na Área do Investidor", desc: "As 6 abas, a busca, ocultar valores e a assistente de IA.", passos: [
+    { id: "primeiros-passos", cat: "Começando", ic: "🧭", titulo: "Primeiros passos na Área do Investidor", desc: "As 7 abas, a busca, ocultar valores e a assistente de IA.", passos: [
       { rota: "inicio", sel: ".tabs-main, .bottom-nav", titulo: "Seis abas, tudo à mão", texto: "Início, Carteira, Proventos, Mercado, Aprender e Relatórios. No celular, elas ficam na barra de baixo." },
       { rota: "inicio", sel: ".hero", titulo: "Seu resumo", texto: "O saldo total de todas as suas contas e quanto você ganhou ou perdeu no período escolhido." },
       { rota: "inicio", sel: "#searchBtn", titulo: "Busca", texto: "Encontre qualquer ação, FII, ETF (inclusive ETFs de Criptomoedas) ou página. Atalho: tecla /." },
@@ -41,7 +41,7 @@
       { rota: "aprender", sel: ".vgrid", titulo: "Vídeos de 1 minuto", texto: "Animados, com narração e legenda, e um quiz rápido no final." },
       { rota: "aprender/para-voce", sel: "#app .feed-card", titulo: "Feed para você", texto: "Conteúdos da B3 Educação, do Bora Investir e avisos da sua carteira, escolhidos pelo seu perfil." },
       { rota: "aprender/para-voce", sel: "#app .feed-card .why", titulo: "Por que estou vendo isto?", texto: "Todo item explica o motivo: seu perfil, um interesse seu ou um ativo que você tem." },
-      { rota: "aprender/perfil", sel: "#app .card", titulo: "Questionário de perfil", texto: "8 perguntas e 2 minutos. Personaliza os conteúdos, mas não substitui o perfil da sua corretora." },
+      { rota: "perfil", sel: "#app .card", titulo: "Questionário de perfil", texto: "8 perguntas e 2 minutos. Personaliza os conteúdos, mas não substitui o perfil da sua corretora." },
     ] },
     { id: "acompanhamento", cat: "Mercado", ic: "👀", titulo: "Índices, acompanhamento e alertas", desc: "Acompanhe o mercado e ativos sem precisar tê-los.", passos: [
       { rota: "mercado", sel: "#tvIbov", titulo: "Índices ao vivo", texto: "Gráficos reais do Ibovespa e de outros índices, com uma explicação simples de cada um." },
@@ -65,7 +65,7 @@
     ["As cotações são em tempo real?", "Não. As cotações têm atraso de 15 minutos durante o pregão e mostram o fechamento depois dele. Toda cotação informa o horário e o atraso."],
     ["O que é data-com?", "É o último dia para ter o ativo e garantir o direito a um provento. No dia seguinte (data ex), quem compra não recebe aquele pagamento."],
     ["O feed recomenda investimentos?", "Não. O feed escolhe conteúdos educativos e avisos sobre a sua própria carteira. Ele não sugere comprar nem vender."],
-    ["Como refaço meu perfil?", "Clique no círculo no topo → Perfil do investidor → “Refazer questionário”. Também dá para perguntar à assistente de IA."],
+    ["Como refaço meu perfil?", "Abra a aba Meu Perfil de Investidor → “Refazer questionário”. Também dá para perguntar à assistente de IA."],
     ["Como a IA sabe dos meus números?", "A assistente recebe um resumo da tela e da sua carteira para responder. Ela explica e guia, mas não recomenda investimentos."],
     ["De onde vêm os gráficos ao vivo?", "Os gráficos marcados como “ao vivo” usam cotações reais do TradingView, inclusive as dos ETFs de Criptomoedas da B3. O restante do protótipo usa dados de teste."],
     ["Quem pode ver meus dados?", "Somente as empresas que você autorizou em Conexões e dados → Permissões de compartilhamento. Lá você também pode retirar o acesso."],
@@ -208,7 +208,7 @@
         const f = b.dataset.fim;
         if (f === "tutoriais") return;
         e.preventDefault();
-        if (f === "perfil") location.hash = "#/aprender/perfil";
+        if (f === "perfil") location.hash = "#/perfil";
         else if (f === "tour") { location.hash = "#/inicio"; setTimeout(() => TOUR.iniciar("primeiros-passos"), 300); }
         else if (f === "video") { location.hash = "#/aprender"; setTimeout(() => window.VIDEOS.abrir("b3"), 300); }
         else location.hash = "#/inicio";

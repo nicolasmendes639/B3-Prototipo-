@@ -1,4 +1,4 @@
-/* V2 — aba Aprender: vídeos para iniciantes, glossário interativo, feed por perfil, perfil e como usar o site. */
+/* V2 — aba Aprender: vídeos para iniciantes, glossário interativo, feed por perfil e como usar o site. */
 (function (V) {
   const U = window.U, C = window.CATALOGO, VD = window.VIDEOS;
 
@@ -24,7 +24,7 @@
   V.aprender = {
     html(ctx) {
       const { params } = ctx, aba = params[0] || "";
-      const abas = [["", "🎬 Começando"], ["para-voce", "✨ Para você"], ["perfil", "🧭 Meu perfil"], ["site", "❓ Como usar o site"]];
+      const abas = [["", "🎬 Começando"], ["para-voce", "✨ Para você"], ["site", "❓ Como usar o site"]];
       let corpo = "";
       if (!aba) {
         const f = VD.feitos(), n = f.size, tot = VD.AULAS.length, nivel = n >= tot ? "Mestre" : n >= 5 ? "Investidor curioso" : n >= 2 ? "Aprendiz" : "Iniciante";
@@ -36,7 +36,6 @@
           <div class="grid g4">${GLOSSARIO.map(([t, e, d]) => `<button class="card gl" style="text-align:left;cursor:pointer;min-height:150px" aria-expanded="false"><div style="font-size:30px" aria-hidden="true">${e}</div><b style="font-size:18px">${t}</b><p class="gl-d" style="margin:8px 0 0;color:var(--ink-2)" hidden>${d}</p><span class="gl-h small muted">Toque para ver ↓</span></button>`).join("")}</div>
           <section class="card section" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><span style="font-size:34px" aria-hidden="true">🎓</span><div style="flex:1;min-width:220px"><h2>Quer ir mais fundo?</h2><p class="muted" style="margin:4px 0 0">Cursos completos e gratuitos na B3 Educação e notícias diárias no Bora Investir.</p></div><a class="btn" href="https://edu.b3.com.br/" target="_blank" rel="noopener">B3 Educação ↗</a><a class="btn" href="https://borainvestir.b3.com.br/" target="_blank" rel="noopener">Bora Investir ↗</a></section>`;
       } else if (aba === "para-voce") corpo = V._embutir(V["para-voce"].html(Object.assign({}, ctx, { params: params.slice(1) })));
-      else if (aba === "perfil") corpo = V._embutir(V.perfil.html(ctx));
       else if (aba === "site") corpo = V._embutir(V.tutoriais.html(Object.assign({}, ctx, { params: params.slice(1) })));
       return `<div class="page-head"><div><h1>Aprender</h1><p>Do zero ao confiante: vídeos curtos, conteúdos para o seu perfil e como usar o site</p></div></div>${V._sub("aprender", aba, abas)}${corpo}`;
     },
@@ -45,7 +44,6 @@
       document.querySelectorAll("[data-video]").forEach((b) => b.addEventListener("click", () => VD.abrir(b.dataset.video)));
       document.querySelectorAll(".gl").forEach((b) => b.addEventListener("click", () => { const d = b.querySelector(".gl-d"), o = d.hidden; d.hidden = !o; b.querySelector(".gl-h").hidden = o; b.setAttribute("aria-expanded", String(o)); }));
       if (aba === "para-voce") V["para-voce"].after(Object.assign({}, ctx, { params: params.slice(1) }));
-      if (aba === "perfil") V.perfil.after(ctx);
       if (aba === "site") V.tutoriais.after(ctx);
     },
   };

@@ -596,13 +596,13 @@ body.chat-open .ai-panel { transform: none; }
 .conn .st { margin-left: auto; }
 
 /* ======================= Responsivo V2 ======================= */
-@media (max-width: 1100px) {
+@media (max-width: 1365px) {
   .tabs-main a span { display: none; }
   .tabs-main a { padding: 10px 12px; }
 }
 @media (max-width: 900px) {
   .tabs-main { display: none; }
-  .bottom-nav { display: grid; grid-template-columns: repeat(6, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: #fff; border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+  .bottom-nav { display: grid; grid-template-columns: repeat(7, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: #fff; border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
   .bottom-nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: var(--muted); font-size: 12.5px; font-weight: 600; padding: 6px 0; border-radius: 10px; }
   .bottom-nav a.active { color: var(--b3); background: var(--b3-50); }
   .ai-fab { bottom: 88px; right: 16px; height: 56px; padding: 0 16px; }
@@ -658,3 +658,15 @@ details.acao summary:hover, details.acao[open] summary { background: var(--bg); 
 .acao-menu a:hover, .acao-menu button:hover { background: var(--b3-50); }
 /* .pos também é a linha de posição (.pos-list); no texto de variação positiva fica só a cor */
 span.pos { display: inline; padding: 0; border-radius: 0; color: var(--pos); }
+
+/* ---------- Convite para o questionário de perfil ---------- */
+.dlg-wrap { position: fixed; inset: 0; z-index: 90; background: rgba(8, 18, 40, .55); display: grid; place-items: center; padding: 16px; }
+.dlg { background: #fff; border-radius: 16px; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); max-width: 480px; width: 100%; padding: 28px; text-align: center; }
+.dlg-ic { font-size: 44px; line-height: 1; }
+.dlg h2 { font-size: 22px; margin: 12px 0 8px; }
+.dlg p { color: var(--ink-2); margin: 0 0 10px; }
+.dlg-acoes { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.dlg-acoes .btn { height: 44px; padding: 0 20px; font-size: 16px; }
+/* aba "Meu Perfil de Investidor": nome completo só em telas largas */
+.tabs-main .lbl-c { display: none; }
+@media (max-width: 1599px) { .tabs-main .lbl-l { display: none; } .tabs-main .lbl-c { display: inline; } .tabs-main a { padding: 10px 11px; gap: 6px; } }
