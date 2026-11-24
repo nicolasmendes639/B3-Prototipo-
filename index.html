@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Área do Investidor B3 — protótipo v2</title>
+  <link rel="icon" href="assets/b3-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="proto" role="note">Protótipo v2 · dados de teste (exceto gráficos marcados como “ao vivo”) · não é recomendação de investimento · <a href="dev.html">Guia para devs</a></div>
+
+  <header class="top">
+    <a class="brand" href="#/inicio" aria-label="Área do Investidor — Início"><img src="assets/b3-logo.png" alt="B3"><span>Área do Investidor</span></a>
+    <nav class="tabs-main" id="tabs" aria-label="Seções"></nav>
+    <div class="top-actions">
+      <button class="icon-btn" id="searchBtn" aria-label="Buscar (atalho /)" title="Buscar (atalho /)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+      <button class="icon-btn" id="hideBtn" aria-pressed="false" title="Ocultar valores">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span class="sr-only">Ocultar valores</span></button>
+      <a class="icon-btn" href="#/aprender/site" title="Ajuda e tutoriais" aria-label="Ajuda e tutoriais">?</a>
+      <button class="avatar" id="avatar" aria-haspopup="true" aria-expanded="false" title="Minha conta">EU</button>
+    </div>
+  </header>
+
+  <div class="search-pop" id="searchPop">
+    <div class="search" role="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" autocomplete="off" placeholder="Busque um ativo, cripto ou assunto (ex.: PETR4, bitcoin, proventos)" aria-label="Buscar" aria-controls="sugg">
+      <div class="sugg" id="sugg" role="listbox"></div>
+    </div>
+  </div>
+  <div class="menu-conta" id="menuConta" role="menu"></div>
+
+  <div class="shell"><main id="app" tabindex="-1"></main></div>
+  <nav class="bottom-nav" id="bottomNav" aria-label="Seções"></nav>
+
+  <!-- Assistente de IA -->
+  <button class="ai-fab" id="aiFab" aria-controls="aiPanel" aria-expanded="false"><span class="spark">✦</span><span class="lbl">Pergunte à IA</span><span class="ping" aria-hidden="true"></span></button>
+  <aside class="ai-panel" id="aiPanel" aria-label="Assistente de IA" aria-hidden="true"></aside>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/catalogo.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/mercado.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/carteira.js"></script>
+  <script src="js/cripto.js"></script>
+  <script src="js/feed.js"></script>
+  <script src="js/views-inicio.js"></script>
+  <script src="js/views-mercado.js"></script>
+  <script src="js/views-perfil.js"></script>
+  <script src="js/videos.js"></script>
+  <script src="js/views-aprender.js"></script>
+  <script src="js/views-conta.js"></script>
+  <script src="js/tutoriais.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
