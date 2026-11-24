@@ -625,3 +625,36 @@ body.chat-open .ai-panel { transform: none; }
 .donut-n { font-size: 17px; }
 .pos .lg { font-size: 12.5px; letter-spacing: -.02em; }
 .pos .nm .bar { max-width: 320px; }
+
+/* ---------- Logo da empresa e nome ao passar o mouse ---------- */
+.lg { position: relative; overflow: hidden; }
+.lg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #fff; }
+.emp-pop { position: absolute; z-index: 70; min-width: 260px; max-width: min(420px, calc(100vw - 16px)); background: #fff; color: var(--ink); border: 2px solid var(--b3); border-radius: 12px; padding: 14px 18px; box-shadow: 0 12px 32px rgba(16, 32, 64, .22); font-family: Arial, Helvetica, sans-serif; line-height: 1.35; pointer-events: none; }
+.emp-pop .emp-tk { display: block; font-size: 16px; font-weight: 700; color: var(--ink-2); margin-bottom: 4px; }
+.emp-pop b { display: block; font-size: 23px; }
+.emp-pop .emp-det { display: block; font-size: 18px; margin-top: 2px; }
+
+/* ---------- Tabela de ativos por classe ---------- */
+.grp-h { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; margin-bottom: 12px; }
+.grp-t { flex: 1 1 160px; }
+.grp-t h2 { margin: 0; }
+.grp-kpi { display: flex; flex-direction: column; font-variant-numeric: tabular-nums; }
+.grp-kpi .lbl { color: var(--ink-2); font-size: 14px; font-weight: 600; }
+.grp-tot { min-width: 200px; }
+.grp-tot .bar { height: 6px; margin-top: 6px; }
+.tbl-ativos th, .tbl-ativos td { white-space: nowrap; }
+.tbl-ativos td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl-ativos td small { display: block; font-size: 14px; }
+.th-sort { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+.th-sort:hover, th[aria-sort] .th-sort { color: var(--b3); }
+.tk-cell { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-size: 16.5px; }
+.tk-cell .lg { width: 38px; height: 38px; flex: none; border-radius: 10px; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 800; }
+.tk-cell:hover b { color: var(--b3); text-decoration: underline; }
+details.acao summary { list-style: none; cursor: pointer; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 8px; font-size: 22px; font-weight: 700; color: var(--ink-2); }
+details.acao summary::-webkit-details-marker { display: none; }
+details.acao summary:hover, details.acao[open] summary { background: var(--bg); color: var(--ink); }
+.acao-menu { position: fixed; z-index: 40; min-width: 210px; display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 30px rgba(16, 32, 64, .14); padding: 6px; }
+.acao-menu a, .acao-menu button { text-align: left; padding: 9px 12px; border-radius: 8px; text-decoration: none; color: var(--ink); background: none; border: 0; font: inherit; cursor: pointer; }
+.acao-menu a:hover, .acao-menu button:hover { background: var(--b3-50); }
+/* .pos também é a linha de posição (.pos-list); no texto de variação positiva fica só a cor */
+span.pos { display: inline; padding: 0; border-radius: 0; color: var(--pos); }

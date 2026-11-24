@@ -92,7 +92,40 @@
     pop.style.left = Math.max(8, Math.min(window.scrollX + r.left - 20, window.scrollX + document.documentElement.clientWidth - pop.offsetWidth - 8)) + "px";
     e.stopPropagation();
   });
-  function fecharPops() { menu.classList.remove("open"); avatar.setAttribute("aria-expanded", "false"); document.getElementById("searchPop").classList.remove("open"); if (pop) { pop.remove(); pop = null; } }
+  document.addEventListener("click", (e) => document.querySelectorAll("details.acao[open]").forEach((d) => !d.contains(e.target) && (d.open = false)));
+  addEventListener("scroll", () => document.querySelectorAll("details.acao[open]").forEach((d) => (d.open = false)), { passive: true });
+
+  // ---------- Nome da empresa ao passar o mouse (ou focar) no logo ou no ticker ----------
+  const APELIDO = { VIVT3: "Vivo", TAEE11: "Taesa", CPLE6: "Copel", RADL3: "RD Saúde (Raia Drogasil)" };
+  function empresa(tk) {
+    const m = C.ativos[tk], cr = CR.MOEDAS[tk];
+    if (cr) return { tipo: "ETF de Criptomoedas", nome: cr.nome.replace(/ \(\w+\)$/, ""), det: "Fundo negociado na B3 que acompanha o preço da cripto" };
+    if (!m) return null;
+    if (m.tipo === "acao") return { tipo: "Ação", nome: APELIDO[tk] || m.nome.replace(/ (ON|PN|PNA|PNB|Unit)$/, ""), det: m.empresa };
+    if (m.tipo === "fii") return { tipo: "Fundo imobiliário (FII)", nome: m.nome.replace(/ \(\w+\)$/, ""), det: m.ind.segmento || m.setor };
+    if (m.tipo === "etf") return { tipo: "ETF", nome: m.nome.replace(/ \(\w+\)$/, ""), det: "Acompanha o índice " + m.ind.indice };
+    return null;
+  }
+  let tip = null, tipAlvo = null;
+  function escondeEmp() { if (tip) tip.remove(); if (tipAlvo) tipAlvo.removeAttribute("aria-describedby"); tip = tipAlvo = null; }
+  function mostraEmp(el) {
+    if (el === tipAlvo) return;
+    const e = empresa(el.dataset.emp); escondeEmp(); if (!e) return;
+    tipAlvo = el; el.setAttribute("aria-describedby", "empPop");
+    tip = document.createElement("div"); tip.className = "emp-pop"; tip.id = "empPop"; tip.setAttribute("role", "tooltip");
+    tip.innerHTML = `<span class="emp-tk">${U.esc(el.dataset.emp)} · ${U.esc(e.tipo)}</span><b>${U.esc(e.nome)}</b><span class="emp-det">${U.esc(e.det)}</span>`;
+    document.body.appendChild(tip);
+    const r = el.getBoundingClientRect(), cabe = r.bottom + 10 + tip.offsetHeight < innerHeight;
+    tip.style.top = scrollY + (cabe ? r.bottom + 10 : r.top - 10 - tip.offsetHeight) + "px";
+    tip.style.left = Math.max(8, Math.min(scrollX + r.left, scrollX + document.documentElement.clientWidth - tip.offsetWidth - 8)) + "px";
+  }
+  const alvoEmp = (e) => { const el = e.target.closest && e.target.closest("[data-emp]"); el ? mostraEmp(el) : escondeEmp(); };
+  document.addEventListener("mouseover", alvoEmp);
+  document.addEventListener("focusin", alvoEmp);
+  addEventListener("scroll", escondeEmp, { passive: true });
+  addEventListener("hashchange", escondeEmp);
+
+  function fecharPops() { menu.classList.remove("open"); avatar.setAttribute("aria-expanded", "false"); document.getElementById("searchPop").classList.remove("open"); if (pop) { pop.remove(); pop = null; } escondeEmp(); }
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharPops(); });
 
   // ---------- Busca ----------

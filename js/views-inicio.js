@@ -11,16 +11,76 @@ window.VIEWS = window.VIEWS || {};
   const kpi = (lbl, val, det, info) => `<div class="card kpi"><div class="lbl">${lbl}${info ? U.info(info) : ""}</div><div class="val">${val}</div><div class="det">${det}</div></div>`;
   const sub = (base, atual, abas) => `<nav class="subtabs" aria-label="Seções de ${base}">${abas.map(([k, t]) => `<a href="#/${base}${k ? "/" + k : ""}" class="${atual === k ? "on" : ""}" ${atual === k ? 'aria-current="page"' : ""}>${t}</a>`).join("")}</nav>`;
   const corItem = (x) => (x.tipo === "cripto" ? CR.MOEDAS[x.cod].cor : K.CORES[x.classe] || "#06377b");
-  const logo = (x) => `<span class="lg" style="background:${corItem(x)}">${U.esc(x.tipo === "rf" ? x.cod.slice(0, 3).toUpperCase() : x.cod.replace("Tesouro ", "TD").slice(0, 4))}</span>`;
+  // Ações, FIIs, ETFs e ETFs de Criptomoedas têm logo (icons.brapi.dev) e mostram o nome da empresa ao passar o mouse
+  const temLogo = (x) => x.tipo === "cripto" || (x.tipo === "b3" && x.classe === "Renda variavel");
+  const emp = (x) => (temLogo(x) ? ` data-emp="${U.esc(x.cod)}"` : "");
+  const logo = (x, semEmp) => `<span class="lg" style="background:${corItem(x)}"${semEmp ? "" : emp(x)}>${U.esc(x.tipo === "rf" ? x.cod.slice(0, 3).toUpperCase() : x.cod.replace("Tesouro ", "TD").slice(0, 4))}${temLogo(x) ? `<img src="https://icons.brapi.dev/icons/${encodeURIComponent(x.cod)}.svg" alt="" loading="lazy" onerror="this.remove()">` : ""}</span>`;
   const hrefItem = (x) => (x.tipo === "b3" ? "#/ativo/" + U.slug(x.cod) : x.tipo === "cripto" ? "#/mercado/meus/" + x.cod : "#/carteira/ativos");
   const per = () => U.store.get("periodo", "30D");
   const perTxt = { "7D": "nos últimos 7 dias", "30D": "nos últimos 30 dias", "6M": "nos últimos 6 meses", "12M": "nos últimos 12 meses" };
   const sinalBrl = (v) => (U.state.hide ? "R$ ••••" : (v >= 0 ? "+" : "−") + U.brl(Math.abs(v)).replace("-", ""));
   Object.assign(V, { _fmtY: fmtY, _linkAtivo: linkAtivo, _fonte: fonte, _kpi: kpi, _sub: sub, _logo: logo, _hrefItem: hrefItem, _corItem: corItem });
 
+  // ---------- Tabela de ativos (Carteira → Todos os investimentos) ----------
+  function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
+  // Preço médio simulado: média das cotações desde uma data de compra fictícia, estável por investidor e ativo
+  function precoMedio(id, x) {
+    const h = hash(id + x.cod);
+    if (x.tipo === "cripto") return CR.precoEm(x.cod, null, 60 + (h % 300));
+    const s = M.cotacoes[x.cod].serie, ini = Math.floor(((h % 80) / 100) * s.length);
+    return (s.slice(ini).reduce((a, p) => a + p[1], 0) / (s.length - ini)) * (1 + (((h >> 3) % 9) - 4) / 100);
+  }
+  const GRUPOS_RV = [["Ações", (x) => x.tipo === "b3" && x.sub === "Acoes"], ["FIIs", (x) => x.tipo === "b3" && x.sub === "FII"], ["ETFs", (x) => x.tipo === "b3" && x.sub === "ETF"], ["ETFs de Criptomoedas", (x) => x.tipo === "cripto"]];
+  const COLS = [["Ativo"], ["Preço médio", 1], ["Preço atual", 1], ["Quant.", 1], ["Patr. atual", 1], ["Var. hoje", 1], ["Var. total", 1], ["% na cart.", 1]];
+  const preco = (v) => "R$ " + U.num(v, 2);
+  const duo = (topo, v) => `${topo}<small>${U.sinal(v)}</small>`;
+
+  function tabelaAtivos(id, titulo, g, total) {
+    if (!g.length) return "";
+    const ls = g.map((x) => {
+      const pm = precoMedio(id, x), dia = x.tipo === "cripto" ? CR.MOEDAS[x.cod].ch.d1 : M.cotacoes[x.cod].var;
+      return { x, pm, dia, hoje: x.valor - x.valor / (1 + dia / 100), tot: x.valor - pm * x.q, totPct: (x.preco / pm - 1) * 100 };
+    });
+    const soma = (f) => ls.reduce((a, l) => a + f(l), 0);
+    const valor = soma((l) => l.x.valor), custo = soma((l) => l.pm * l.x.q), hoje = soma((l) => l.hoje), tot = soma((l) => l.tot), pct = (valor / total) * 100;
+    const linhas = ls.map((l) => {
+      const { x } = l, tk = U.esc(x.cod);
+      const menu = `<details class="acao"><summary aria-label="Opções para ${tk}">⋮</summary><div class="acao-menu">${x.tipo === "b3" ? `<a href="#/ativo/${U.slug(x.cod)}">Ver ficha do ativo</a>` : ""}<a href="#/mercado/meus/${U.slug(x.cod)}">Ver gráfico</a><button type="button" data-ask="Como está meu investimento em ${tk}?">✦ Perguntar à IA</button></div></details>`;
+      const ord = [x.cod, l.pm, l.totPct, x.q, x.valor, l.hoje, l.tot, x.pct];
+      return `<tr data-ord='${JSON.stringify(ord)}'><td><a class="tk-cell" href="${hrefItem(x)}" data-emp="${tk}">${logo(x, true)}<b>${tk}</b></a></td>
+        <td class="num">${preco(l.pm)}</td><td class="num">${duo(preco(x.preco), l.totPct)}</td><td class="num">${U.qtd(x.q)}</td><td class="num">${U.brl(x.valor)}</td>
+        <td class="num">${duo(U.brl(l.hoje), l.dia)}</td><td class="num">${duo(U.brl(l.tot), l.totPct)}</td><td class="num">${U.num(x.pct, 2)}%</td><td>${menu}</td></tr>`;
+    }).join("");
+    return `<section class="card section"><div class="grp-h">
+        <div class="grp-t"><h2>${titulo}</h2><span class="muted">${g.length} ${g.length === 1 ? "ativo" : "ativos"}</span></div>
+        <div class="grp-kpi"><span class="lbl">Variação total</span>${U.sinal(custo ? (tot / custo) * 100 : 0)}<span class="small">${U.brl(tot)}</span></div>
+        <div class="grp-kpi"><span class="lbl">Variação hoje</span>${U.sinal((hoje / (valor - hoje)) * 100)}<span class="small">${U.brl(hoje)}</span></div>
+        <div class="grp-kpi grp-tot"><span class="lbl">${U.brl(valor)}</span><b>${U.num(pct, 2)}% da carteira</b><div class="bar"><i style="width:${pct}%;background:var(--b3)"></i></div></div>
+      </div>
+      <div class="tbl-wrap"><table class="tbl-ativos"><thead><tr>${COLS.map(([t, n], i) => `<th class="${n ? "num" : ""}"><button type="button" class="th-sort" data-col="${i}">${t} <span aria-hidden="true">↕</span></button></th>`).join("")}<th>Ação</th></tr></thead><tbody>${linhas}</tbody></table></div></section>`;
+  }
+
+  // Ordena a tabela pela coluna clicada (clicar de novo inverte)
+  function ordenaTabelas() {
+    document.querySelectorAll(".tbl-ativos .th-sort").forEach((b) => b.addEventListener("click", () => {
+      const th = b.closest("th"), tb = b.closest("table").tBodies[0], col = +b.dataset.col;
+      const asc = th.getAttribute("aria-sort") !== "ascending";
+      b.closest("tr").querySelectorAll("th").forEach((t) => t.removeAttribute("aria-sort"));
+      th.setAttribute("aria-sort", asc ? "ascending" : "descending");
+      [...tb.rows].sort((r1, r2) => { const a = JSON.parse(r1.dataset.ord)[col], z = JSON.parse(r2.dataset.ord)[col]; return (typeof a === "string" ? a.localeCompare(z) : a - z) * (asc ? 1 : -1); }).forEach((r) => tb.appendChild(r));
+    }));
+    // menu "⋮": abre por cima da tabela (a rolagem horizontal cortaria o menu)
+    document.querySelectorAll("details.acao").forEach((d) => d.addEventListener("toggle", () => {
+      if (!d.open) return;
+      document.querySelectorAll("details.acao[open]").forEach((o) => o !== d && (o.open = false));
+      const r = d.querySelector("summary").getBoundingClientRect(), m = d.querySelector(".acao-menu");
+      m.style.top = r.bottom + 4 + "px"; m.style.left = Math.max(8, r.right - m.offsetWidth) + "px";
+    }));
+  }
+
   function posLista(its, n, per) {
     const contrib = per ? Object.fromEntries(K.contribuicao(window.APP.id(), per).map((c) => [c.cod, c])) : {};
-    return `<div class="pos-list">${its.slice(0, n).map((x) => { const c = contrib[x.cod]; return `<a class="pos" href="${hrefItem(x)}">${logo(x)}<div class="nm"><b>${U.esc(x.tipo === "rf" ? x.nome : x.cod)}</b><span>${U.esc(x.tipo === "rf" ? (x.classe === "Fundos" ? "Fundos" : "Renda fixa") + " · " + x.instTxt : x.nome)}</span><div class="bar"><i style="width:${Math.max(2, x.pct)}%;background:${corItem(x)}"></i></div></div>
+    return `<div class="pos-list">${its.slice(0, n).map((x) => { const c = contrib[x.cod]; return `<a class="pos" href="${hrefItem(x)}">${logo(x)}<div class="nm"><b${emp(x)}>${U.esc(x.tipo === "rf" ? x.nome : x.cod)}</b><span>${U.esc(x.tipo === "rf" ? (x.classe === "Fundos" ? "Fundos" : "Renda fixa") + " · " + x.instTxt : x.nome)}</span><div class="bar"><i style="width:${Math.max(2, x.pct)}%;background:${corItem(x)}"></i></div></div>
       <div class="vl"><b>${U.brl(x.valor)}</b><span class="small muted">${U.num(x.pct, 1)}%</span>${c ? `<div>${U.sinal(c.pctVar)}</div>` : ""}</div></a>`; }).join("")}</div>`;
   }
 
@@ -104,8 +164,9 @@ window.VIEWS = window.VIEWS || {};
           <div class="grid g3 section">${kpi("Sua carteira (12m)", U.sinal(r.rent.at(-1)[1]), "Rentabilidade acumulada")}${kpi("CDI (12m)", U.sinal(r.cdi.at(-1)[1]), "Referência de renda fixa")}${kpi("Ibovespa (12m)", U.sinal(r.ibov.at(-1)[1]), "Referência de ações")}</div>
           <section class="card section"><div class="card-h"><div><h2>Quem ganhou e quem perdeu</h2><div class="sub">Contribuição de cada investimento ${perTxt[p]}</div></div><div class="seg" role="group">${Object.keys(K.PERIODOS).map((k) => `<button data-per="${k}" aria-pressed="${k === p}">${k}</button>`).join("")}</div></div><div id="chContrib2"></div></section>`;
       } else if (aba === "ativos") {
-        const grupos = [["Ações, FIIs e ETFs", (x) => x.classe === "Renda variavel"], ["Tesouro Direto", (x) => x.classe === "Tesouro Direto"], ["Renda fixa e fundos", (x) => x.tipo === "rf"], ["ETFs de Criptomoedas", (x) => x.tipo === "cripto"]];
-        corpo = grupos.map(([t, f]) => { const g = its.filter(f); if (!g.length) return ""; const tot = g.reduce((a, x) => a + x.valor, 0); return `<section class="card section"><div class="card-h"><h2>${t}</h2><b class="num">${U.brl(tot)}</b></div><div class="grid g2">${g.map((x) => { const cot = x.tipo === "b3" ? M.cotacoes[x.cod] : null; return `<a class="pos" href="${hrefItem(x)}" style="border:1px solid var(--line)">${logo(x)}<div class="nm"><b>${U.esc(x.tipo === "rf" ? x.nome : x.cod)}</b><span>${U.esc(x.tipo === "rf" ? x.instTxt : x.nome)}</span></div><div class="vl"><b>${U.brl(x.valor)}</b>${cot ? CH.spark(cot.serie.slice(-60).map((s) => s[1]), cot.var12m >= 0 ? "#16a34a" : "#dc2626", 90, 24) : x.tipo === "cripto" ? U.sinal(CR.MOEDAS[x.cod].ch.d30) : '<span class="small muted">rende ~CDI</span>'}</div></a>`; }).join("")}</div></section>`; }).join("") + '<p class="small muted">Quer ver em tabela? <a href="#/relatorios">Relatórios</a> tem a posição completa para exportar.</p>';
+        const total = its.reduce((a, x) => a + x.valor, 0);
+        const grupos = [["Tesouro Direto", (x) => x.classe === "Tesouro Direto"], ["Renda fixa e fundos", (x) => x.tipo === "rf"]];
+        corpo = GRUPOS_RV.map(([t, f]) => tabelaAtivos(id, t, its.filter(f), total)).join("") + grupos.map(([t, f]) => { const g = its.filter(f); if (!g.length) return ""; const tot = g.reduce((a, x) => a + x.valor, 0); return `<section class="card section"><div class="card-h"><h2>${t}</h2><b class="num">${U.brl(tot)}</b></div><div class="grid g2">${g.map((x) => { const cot = x.tipo === "b3" ? M.cotacoes[x.cod] : null; return `<a class="pos" href="${hrefItem(x)}" style="border:1px solid var(--line)">${logo(x)}<div class="nm"><b${emp(x)}>${U.esc(x.tipo === "rf" ? x.nome : x.cod)}</b><span>${U.esc(x.tipo === "rf" ? x.instTxt : x.nome)}</span></div><div class="vl"><b>${U.brl(x.valor)}</b>${cot ? CH.spark(cot.serie.slice(-60).map((s) => s[1]), cot.var12m >= 0 ? "#16a34a" : "#dc2626", 90, 24) : x.tipo === "cripto" ? U.sinal(CR.MOEDAS[x.cod].ch.d30) : '<span class="small muted">rende ~CDI</span>'}</div></a>`; }).join("")}</div></section>`; }).join("") + '<p class="small muted">Preço médio simulado neste protótipo. Para exportar a posição completa, use <a href="#/relatorios">Relatórios</a>.</p>';
       } else if (aba === "movimentacoes") {
         const ult = r.inv.mov.slice(-8).reverse();
         corpo = `<section class="card"><div class="card-h"><div><h2>Dinheiro que entrou e saiu</h2><div class="sub">Compras e aplicações × vendas e resgates, por mês</div></div></div><div class="chart" id="chMov"></div></section>
@@ -126,6 +187,7 @@ window.VIEWS = window.VIEWS || {};
         const ct = K.contribuicao(id, per()); barrasH(document.getElementById("chContrib2"), ct.map((c) => ({ rot: c.tipo === "rf" ? c.nome : c.cod, v: c.ganho })));
         document.querySelectorAll("[data-per]").forEach((b) => b.addEventListener("click", () => { U.store.set("periodo", b.dataset.per); window.APP.render(); }));
       }
+      if (aba === "ativos") ordenaTabelas();
       if (aba === "movimentacoes") {
         const mm = {}; r.inv.mov.forEach((m) => { const k = m[0].slice(0, 7); mm[k] = mm[k] || [0, 0]; mm[k][m[3] === "Compra" ? 0 : 1] += m[7]; });
         const ks = Object.keys(mm).sort().slice(-12);
