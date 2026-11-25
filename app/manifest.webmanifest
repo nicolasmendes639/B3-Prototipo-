@@ -1,0 +1,17 @@
+{
+  "name": "B3 Investidor (protótipo)",
+  "short_name": "B3 Investidor",
+  "description": "Área do Investidor da B3 em formato de app — protótipo com dados de teste.",
+  "lang": "pt-BR",
+  "start_url": "./#/inicio",
+  "scope": "../",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06377b",
+  "theme_color": "#06377b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

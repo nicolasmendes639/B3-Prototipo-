@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+  <title>B3 Investidor — app (protótipo)</title>
+  <meta name="theme-color" content="#06377b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="B3 Investidor">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Mesmo visual do site (cores, cartões, gráficos) + a casca de aplicativo -->
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="app">
+  <div class="phone" id="phone">
+    <header class="ap-top" id="apTop"></header>
+    <main class="ap-tela" id="app" tabindex="-1"></main>
+    <nav class="ap-tabs" id="apTabs" aria-label="Seções"></nav>
+
+    <!-- Assistente de IA (o mesmo do site) -->
+    <button class="ai-fab" id="aiFab" aria-controls="aiPanel" aria-expanded="false"><span class="spark">✦</span><span class="lbl">Pergunte à IA</span><span class="ping" aria-hidden="true"></span></button>
+    <aside class="ai-panel" id="aiPanel" aria-label="Assistente de IA" aria-hidden="true"></aside>
+
+    <div class="ap-sheet-bg" id="sheetBg" hidden></div>
+    <section class="ap-sheet" id="sheet" role="dialog" aria-modal="true" hidden></section>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Dados e cálculos compartilhados com o site (nada é duplicado) -->
+  <script>window.VIEWS = {};</script>
+  <script src="../js/data.js"></script>
+  <script src="../js/catalogo.js"></script>
+  <script src="../js/util.js"></script>
+  <script src="../js/mercado.js"></script>
+  <script src="../js/charts.js"></script>
+  <script src="../js/carteira.js"></script>
+  <script src="../js/cripto.js"></script>
+  <script src="../js/rentabilidade.js"></script>
+  <script src="../js/proventos.js"></script>
+  <script src="../js/feed.js"></script>
+  <script src="../js/videos.js"></script>
+  <script src="../js/views-perfil.js"></script>
+  <script src="app.js"></script>
+  <script src="../js/chat.js"></script>
+  <script>window.APP_INICIAR && window.APP_INICIAR();</script>
+</body>
+</html>
