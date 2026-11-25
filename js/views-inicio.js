@@ -17,7 +17,12 @@ window.VIEWS = window.VIEWS || {};
   const logo = (x, semEmp) => `<span class="lg" style="background:${corItem(x)}"${semEmp ? "" : emp(x)}>${U.esc(x.tipo === "rf" ? x.cod.slice(0, 3).toUpperCase() : x.cod.replace("Tesouro ", "TD").slice(0, 4))}${temLogo(x) ? `<img src="https://icons.brapi.dev/icons/${encodeURIComponent(x.cod)}.svg" alt="" loading="lazy" onerror="this.remove()">` : ""}</span>`;
   const hrefItem = (x) => (x.tipo === "b3" ? "#/ativo/" + U.slug(x.cod) : x.tipo === "cripto" ? "#/mercado/meus/" + x.cod : "#/carteira/ativos");
   const per = () => U.store.get("periodo", "30D");
-  const perTxt = { "7D": "nos últimos 7 dias", "30D": "nos últimos 30 dias", "6M": "nos últimos 6 meses", "12M": "nos últimos 12 meses" };
+  const PER_TXT = { "7D": "nos últimos 7 dias", "30D": "nos últimos 30 dias", "6M": "nos últimos 6 meses", "12M": "nos últimos 12 meses", "24M": "nos últimos 24 meses" };
+  const perTxt = (p, id) => PER_TXT[p] || `desde que começou a investir, em ${U.MESES[+K.inicio(id).data.slice(5, 7) - 1]}/${K.inicio(id).data.slice(0, 4)}`;
+  // botões de período (Início e Carteira → Rentabilidade)
+  const segPer = (p) => `<div class="seg seg-per" role="group" aria-label="Período">${Object.keys(K.PERIODOS).map((k) => `<button data-per="${k}" aria-pressed="${k === p}">${K.ROTULO_PER[k] || k}</button>`).join("")}</div>`;
+  // datas no eixo do gráfico: com o ano quando o período passa de 1 ano
+  const fmtXPer = (p) => (d, l) => (l ? U.data(d) : p === "24M" || p === "TUDO" ? U.mesAno(d) : U.dataCurta(d));
   const sinalBrl = (v) => (U.state.hide ? "R$ ••••" : (v >= 0 ? "+" : "−") + U.brl(Math.abs(v)).replace("-", ""));
   Object.assign(V, { _fmtY: fmtY, _linkAtivo: linkAtivo, _fonte: fonte, _kpi: kpi, _sub: sub, _logo: logo, _hrefItem: hrefItem, _corItem: corItem });
 
@@ -102,8 +107,8 @@ window.VIEWS = window.VIEWS || {};
             <div class="lbl">Saldo total da carteira ${U.info("Soma de tudo o que está nas suas contas conectadas: B3 (ações, FIIs, ETFs, Tesouro), renda fixa e fundos das corretoras e seus ETFs de Criptomoedas.")}</div>
             <div class="saldo">${U.brl(res.fim)}</div>
             <div class="ganho ${up ? "up" : "down"}" data-tour="ganho"><span aria-hidden="true">${up ? "▲" : "▼"}</span> ${sinalBrl(res.ganho)} <span style="opacity:.85">(${up ? "+" : ""}${U.num(res.pct, 2)}%)</span></div>
-            <div class="hero-sub">${up ? "Você ganhou" : "Sua carteira caiu"} ${perTxt[p]} ${U.info("Variação de mercado da sua carteira atual no período: quanto os seus investimentos valorizaram ou desvalorizaram. Não conta dinheiro novo que você colocou ou tirou.", "Como calculamos")}</div>
-            <div style="margin-top:16px" class="seg" role="group" aria-label="Período">${Object.keys(K.PERIODOS).map((k) => `<button data-per="${k}" aria-pressed="${k === p}">${k}</button>`).join("")}</div>
+            <div class="hero-sub">${up ? "Você ganhou" : "Sua carteira caiu"} ${perTxt(p, id)} ${U.info("Variação de mercado da sua carteira atual no período: quanto os seus investimentos valorizaram ou desvalorizaram. Não conta dinheiro novo que você colocou ou tirou.", "Como calculamos")}</div>
+            <div style="margin-top:16px">${segPer(p)}</div>
           </div>
           <div class="chart" id="chHero" style="min-height:200px"></div>
         </div>
@@ -115,7 +120,7 @@ window.VIEWS = window.VIEWS || {};
           <div>${posLista(its, 6, p)}${its.length > 6 ? `<a class="small" href="#/carteira/ativos" style="display:block;margin:8px 10px 0">+ ${its.length - 6} investimentos</a>` : ""}</div></div>
       </section>
       <div class="grid g2 section">
-        <section class="card"><div class="card-h"><div><h2>O que mais mexeu no resultado</h2><div class="sub">Ganho ou perda em reais ${perTxt[p]}</div></div></div><div class="chart" id="chContrib"></div></section>
+        <section class="card"><div class="card-h"><div><h2>O que mais mexeu no resultado</h2><div class="sub">Ganho ou perda em reais ${perTxt(p, id)}</div></div></div><div class="chart" id="chContrib"></div></section>
         <section class="card"><div class="card-h"><div><h2>Próximos recebimentos</h2><div class="sub">Proventos já anunciados</div></div><a href="#/proventos" class="small">Ver todos</a></div>
           ${prox.length ? prox.map((x) => `<div class="list-item"><div class="date-box"><b>${x.data.slice(8)}</b><span>${U.MESES[+x.data.slice(5, 7) - 1]}</span></div><div class="grow"><div class="t">${x.tk}</div><div class="s">${U.rotuloProv(x.tp)} · anunciado</div></div><b class="num">${U.brl(x.valor)}</b></div>`).join("") : '<div class="empty"><div class="big">🗓️</div>Nenhum provento anunciado agora.</div>'}</section>
       </div>
@@ -123,7 +128,7 @@ window.VIEWS = window.VIEWS || {};
     },
     after({ id }) {
       const p = per(), res = K.resultado(id, p), up = res.ganho >= 0;
-      CH.linha(document.getElementById("chHero"), { series: [{ nome: "Saldo", cor: up ? "#8ff0b5" : "#ffb4ad", pontos: res.serie }], area: true, fmtY, fmtX: (d, l) => (l ? U.data(d) : U.dataCurta(d)), altura: 210, label: "Evolução do saldo no período" });
+      CH.linha(document.getElementById("chHero"), { series: [{ nome: "Saldo", cor: up ? "#8ff0b5" : "#ffb4ad", pontos: res.serie }], area: true, fmtY, fmtX: fmtXPer(p), altura: 210, label: "Evolução do saldo no período" });
       CH.rosca(document.getElementById("dHome"), K.porClasse(id), { centro: String(K.porClasse(id).length), sub: "classes", label: "Distribuição por classe" });
       const ct = K.contribuicao(id, p).filter((c) => Math.abs(c.ganho) > 0.5);
       const top = ct.slice(0, 3).concat(ct.slice(-3).filter((x) => !ct.slice(0, 3).includes(x)));
@@ -164,7 +169,7 @@ window.VIEWS = window.VIEWS || {};
             <div class="idx-sel" role="group" aria-label="Comparar com"><span class="lbl">Comparar com:</span>${Object.entries(window.RENT.INDICES).map(([k, ix]) => `<button type="button" class="chip-tg" data-idx="${k}" aria-pressed="false" title="${ix.desc}"><i style="background:${ix.cor}"></i>${ix.nome}</button>`).join("")}</div>
             <div class="chart" id="chRent"></div></section>
           <div class="grid g4 section" id="kpiRent"></div>
-          <section class="card section"><div class="card-h"><div><h2>Quem ganhou e quem perdeu</h2><div class="sub">Contribuição de cada investimento ${perTxt[p]}${comProv ? ", somando os proventos" : ""}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" role="group" aria-label="Proventos"><button data-cprov="0" aria-pressed="${!comProv}">Só preço</button><button data-cprov="1" aria-pressed="${comProv}">Com proventos</button></div><div class="seg" role="group">${Object.keys(K.PERIODOS).map((k) => `<button data-per="${k}" aria-pressed="${k === p}">${k}</button>`).join("")}</div></div></div><div id="chContrib2"></div></section>`;
+          <section class="card section"><div class="card-h"><div><h2>Quem ganhou e quem perdeu</h2><div class="sub">Contribuição de cada investimento ${perTxt(p, id)}${comProv ? ", somando os proventos" : ""}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" role="group" aria-label="Proventos"><button data-cprov="0" aria-pressed="${!comProv}">Só preço</button><button data-cprov="1" aria-pressed="${comProv}">Com proventos</button></div>${segPer(p)}</div></div><div id="chContrib2"></div></section>`;
       } else if (aba === "ativos") {
         const total = its.reduce((a, x) => a + x.valor, 0);
         const grupos = [["Tesouro Direto", (x) => x.classe === "Tesouro Direto"], ["Renda fixa e fundos", (x) => x.tipo === "rf"]];

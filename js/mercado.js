@@ -64,6 +64,19 @@ window.MERCADO = (function () {
     };
   });
 
+  // Histórico longo (até 8 anos), só para o saldo em 24 meses e "desde o começo".
+  // Os últimos 252 dias são as mesmas cotações acima; antes disso, o mesmo sorteio continua para trás.
+  const diasLongos = [];
+  { let d = BASE; while (diasLongos.length < 252 * 8) { if (isBiz(d)) diasLongos.unshift(d); d = addDays(d, -1); } }
+  const longas = {};
+  function serieLonga(tk) {
+    if (longas[tk]) return longas[tk];
+    const s = cotacoes[tk].serie, tipo = C.ativos[tk].tipo, r = rng("pxl:" + tk), extra = diasLongos.length - s.length, out = new Array(extra);
+    let v = s[0][1];
+    for (let i = extra - 1; i >= 0; i--) { v = v / (1 + drift[tipo] + vol[tipo] * gauss(r)); out[i] = [diasLongos[i], +v.toFixed(2)]; }
+    return (longas[tk] = out.concat(s));
+  }
+
   // ---------- Índices ----------
   function indice(nome, fim, v, dr) {
     const r = rng("ix:" + nome); const out = new Array(dias.length); out[dias.length - 1] = fim;
@@ -147,5 +160,5 @@ window.MERCADO = (function () {
     { nome: "Varejo Exemplo S.A.", tipo: "Oferta inicial de ações (IPO)", periodo: "a definir", status: "Em análise", publico: "Investidores em geral" },
   ];
 
-  return { BASE, ATUALIZACAO, dias, cotacoes, indices, cdiMensal, proventosAtivo, eventos, ofertas, addDays, nextBiz, iso, toD };
+  return { BASE, ATUALIZACAO, dias, diasLongos, serieLonga, cotacoes, indices, cdiMensal, proventosAtivo, eventos, ofertas, addDays, nextBiz, iso, toD };
 })();

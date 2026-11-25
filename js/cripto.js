@@ -32,6 +32,8 @@ window.CRIPTO = (function () {
   // preço do ETF numa data (aproximação pela variação do período)
   function precoEm(sym, dataIso, diasAtras) {
     const m = MOEDAS[sym], ch = diasAtras <= 7 ? m.ch.d7 : diasAtras <= 30 ? m.ch.d30 : diasAtras <= 190 ? m.ch.d180 : m.ch.d365;
+    // mais de 1 ano: repete a variação de 12 meses a cada ano
+    if (diasAtras > 365) return m.preco / Math.pow(1 + m.ch.d365 / 100, diasAtras / 365);
     const k = Math.min(1, diasAtras / (diasAtras <= 7 ? 7 : diasAtras <= 30 ? 30 : diasAtras <= 190 ? 180 : 365));
     return m.preco / (1 + ((ch || 0) / 100) * k);
   }
@@ -74,14 +76,16 @@ window.CONSOL = (function () {
     return out.map((x, i) => Object.assign(x, { pct: (x.valor / tot) * 100, cor: window.CART.PALETA[i % 12] })).sort((a, b) => b.valor - a.valor);
   }
 
-  // Série diária do patrimônio atual nos últimos n dias úteis (variação de mercado, sem aportes)
+  // Série diária do patrimônio atual nos últimos n dias úteis (variação de mercado, sem aportes).
+  // Períodos longos usam um ponto a cada poucos dias, para o gráfico continuar leve.
   function serie(id, n) {
-    const its = itens(id), dias = M.dias.slice(-n - 1), L = M.dias.length;
-    return dias.map((d, k) => {
-      const back = dias.length - 1 - k; // dias úteis atrás
+    const its = itens(id), L = M.diasLongos.length, passo = Math.ceil(n / 260);
+    const dias = M.diasLongos.slice(-n - 1).filter((_, k, a) => k === 0 || (a.length - 1 - k) % passo === 0);
+    return dias.map((d) => {
+      const back = L - 1 - M.diasLongos.lastIndexOf(d); // dias úteis atrás
       let v = 0;
       its.forEach((x) => {
-        if (x.tipo === "b3") { const s = M.cotacoes[x.cod].serie; v += x.valor * (s[L - 1 - back][1] / s[L - 1][1]); }
+        if (x.tipo === "b3") { const s = M.serieLonga(x.cod); v += x.valor * (s[L - 1 - back][1] / s[L - 1][1]); }
         else if (x.tipo === "rf") v += x.valor / Math.pow(1 + (TAXA_MES[x.sub] || 0.01), back / 21);
         else { const dc = Math.round(back * 1.45); v += x.q * CR.precoEm(x.cod, d, dc); }
       });
@@ -89,25 +93,30 @@ window.CONSOL = (function () {
     });
   }
 
-  const PERIODOS = { "7D": 5, "30D": 21, "6M": 126, "12M": 251 };
+  const PERIODOS = { "7D": 5, "30D": 21, "6M": 126, "12M": 251, "24M": 503, TUDO: null };
+  const ROTULO_PER = { TUDO: "Desde o começo" };
+  // "Desde o começo": data simulada em que o investidor começou a investir (3 a 7 anos atrás)
+  function inicio(id) { const n = 252 * 3 + (hash(id) % (252 * 4)); return { n, data: M.diasLongos[M.diasLongos.length - 1 - n] }; }
+  const nDias = (id, per) => (per === "TUDO" ? inicio(id).n : PERIODOS[per] || PERIODOS["30D"]);
+  function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
   function resultado(id, per) {
-    const s = serie(id, PERIODOS[per]);
+    const s = serie(id, nDias(id, per));
     const ini = s[0][1], fim = s[s.length - 1][1];
     return { serie: s, ini, fim, ganho: fim - ini, pct: ((fim - ini) / ini) * 100 };
   }
   // contribuição de cada item para o resultado do período
   function contribuicao(id, per) {
-    const n = PERIODOS[per], L = M.dias.length;
+    const n = nDias(id, per), L = M.diasLongos.length;
     return itens(id).map((x) => {
       let ini;
-      if (x.tipo === "b3") { const s = M.cotacoes[x.cod].serie; ini = x.valor * (s[L - 1 - n][1] / s[L - 1][1]); }
+      if (x.tipo === "b3") { const s = M.serieLonga(x.cod); ini = x.valor * (s[L - 1 - n][1] / s[L - 1][1]); }
       else if (x.tipo === "rf") ini = x.valor / Math.pow(1 + (TAXA_MES[x.sub] || 0.01), n / 21);
-      else ini = x.q * CR.precoEm(x.cod, M.dias[L - 1 - n], Math.round(n * 1.45));
+      else ini = x.q * CR.precoEm(x.cod, M.diasLongos[L - 1 - n], Math.round(n * 1.45));
       // proventos com data ex no período (ações, FIIs e ETFs que distribuem)
       const provR = x.tipo === "b3" && x.classe === "Renda variavel" ? window.RENT.provPeriodo(x.cod, x.q, n) : 0;
       return Object.assign({}, x, { ganho: x.valor - ini, pctVar: ((x.valor - ini) / ini) * 100, provR, ganhoProv: x.valor - ini + provR, pctProv: ((x.valor - ini + provR) / ini) * 100 });
     }).sort((a, b) => b.ganho - a.ganho);
   }
 
-  return { itens, porClasse, porInstituicao, serie, resultado, contribuicao, PERIODOS, CORES, ROTULO };
+  return { itens, porClasse, porInstituicao, serie, resultado, contribuicao, inicio, PERIODOS, ROTULO_PER, CORES, ROTULO };
 })();

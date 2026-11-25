@@ -712,3 +712,10 @@ span.pos { display: inline; padding: 0; border-radius: 0; color: var(--pos); }
   .subtabs a { flex: 1 1 auto; text-align: center; }
   .bottom-nav a { font-size: 10.5px; letter-spacing: -.02em; padding: 6px 1px; }
 }
+
+/* Períodos do saldo: no celular, 5 botões curtos numa linha e "Desde o começo" embaixo, ocupando a largura toda */
+@media (max-width: 560px) {
+  .seg-per { display: grid; grid-template-columns: repeat(5, auto); border-radius: 18px; }
+  .seg-per button { padding: 8px 6px; }
+  .seg-per button:last-child { grid-column: 1 / -1; }
+}

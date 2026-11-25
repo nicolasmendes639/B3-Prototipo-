@@ -48,7 +48,9 @@ window.RENT = (function () {
   // Proventos (R$) recebidos nos últimos n pregões por uma posição de q cotas
   function provPeriodo(tk, q, n) {
     const de = M.dias[Math.max(0, M.dias.length - 1 - n)];
-    return provs(tk).filter((p) => p.dataEx > de && p.dataEx <= M.BASE).reduce((a, p) => a + p.valor, 0) * q;
+    const v = provs(tk).filter((p) => p.dataEx > de && p.dataEx <= M.BASE).reduce((a, p) => a + p.valor, 0) * q;
+    // só há 12 meses de proventos simulados: períodos maiores repetem a média anual
+    return n > M.dias.length - 1 ? v * (n / (M.dias.length - 1)) : v;
   }
 
   // ---------- Índices de referência ----------

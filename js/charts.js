@@ -30,7 +30,8 @@ window.CH = (function () {
     let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="${opts.label || "Gráfico de linha"}">`;
     s += `<defs>${series.map((se, k) => `<linearGradient id="${id}a${k}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${se.cor}" stop-opacity=".18"/><stop offset="1" stop-color="${se.cor}" stop-opacity="0"/></linearGradient>`).join("")}</defs>`;
     ticks.forEach((t) => { s += `<line x1="${P.l}" x2="${W - P.r}" y1="${Y(t)}" y2="${Y(t)}" class="grid"/><text x="${P.l - 8}" y="${Y(t) + 4}" class="axis" text-anchor="end">${fmtY(t, true)}</text>`; });
-    const passos = Math.max(1, Math.ceil(n / (W < 480 ? 4 : 7)));
+    // quantas datas cabem no eixo sem encostar umas nas outras (~70px cada)
+    const passos = Math.max(1, Math.ceil(n / Math.max(2, Math.min(7, Math.floor((W - P.l - P.r) / 70)))));
     series[0].pontos.forEach((p, i) => { if ((i % passos === 0 && n - 1 - i >= passos * 0.6) || i === n - 1) s += `<text x="${X(i)}" y="${H - 8}" class="axis" text-anchor="${i === 0 ? "start" : i === n - 1 ? "end" : "middle"}">${fmtX(p[0])}</text>`; });
     series.forEach((se, k) => {
       const d = se.pontos.map((p, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("");

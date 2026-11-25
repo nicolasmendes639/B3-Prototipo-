@@ -14,7 +14,7 @@ Protótipo navegável de uma nova **Área do Investidor da B3**. Ele junta em um
 
 | Aba | O que tem |
 |---|---|
-| **Início** | Saldo total e quanto a carteira **ganhou ou perdeu nos últimos 30 dias**, em R$ e % (também 7D, 6M e 12M). Logo abaixo vêm a carteira em gráfico de pizza, o que mais pesou no resultado e os próximos recebimentos. |
+| **Início** | Saldo total e quanto a carteira **ganhou ou perdeu nos últimos 30 dias**, em R$ e % (também 7D, 6M, 12M, 24M e “Desde o começo”). Logo abaixo vêm a carteira em gráfico de pizza, o que mais pesou no resultado e os próximos recebimentos. |
 | **Carteira** | Distribuição por classe, conta e tipo; rentabilidade × CDI, Ibovespa, Dólar e outros índices; todos os investimentos; entradas e saídas. |
 | **Proventos** | Pago × anunciado, mês a mês, calendário visual (data-com, data ex e pagamento) e assembleias. |
 | **Mercado** | Gráficos **reais** dos índices e dos ativos do investidor (inclusive ETFs de Criptomoedas); destaques; acompanhamento e alertas; comparador; ofertas. |
