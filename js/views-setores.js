@@ -51,9 +51,10 @@
   }
 
   V._setores = {
-    html() {
+    // topo = primeira seção da página (sem o espaço de cima)
+    html(topo) {
       const modo = U.store.get("setor:modo", "setor");
-      return `<section class="card section" id="secSetores"><div class="card-h"><div><h2>Por setor e segmento ${U.info("Anel de dentro: classe (ações, FIIs, renda fixa…). Anel do meio: setor ou segmento. Anel de fora: cada investimento. Clique numa fatia para ver em detalhe; clique no centro para voltar. O setor das ações segue a classificação setorial da B3.", "Como ler")}</h2><div class="sub">Em quais setores da economia está o seu dinheiro</div></div>
+      return `<section class="card${topo ? "" : " section"}" id="secSetores"><div class="card-h"><div><h2>Por setor e segmento ${U.info("Anel de dentro: classe (ações, FIIs, renda fixa…). Anel do meio: setor ou segmento. Anel de fora: cada investimento. Clique numa fatia para ver em detalhe; clique no centro para voltar. O setor das ações segue a classificação setorial da B3.", "Como ler")}</h2><div class="sub">Em quais setores da economia está o seu dinheiro</div></div>
         <div class="seg" role="group" aria-label="Anel do meio"><button type="button" data-smodo="setor" aria-pressed="${modo === "setor"}">Setor</button><button type="button" data-smodo="segmento" aria-pressed="${modo === "segmento"}">Segmento</button></div></div>
         <div class="mn-grid"><div id="chSetores"></div><div id="legSetores"></div></div></section>`;
     },
