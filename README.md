@@ -46,7 +46,7 @@ css/styles.css        cores, fontes e componentes
 js/app.js             abas, rotas, busca, menu da conta
 js/views-inicio.js    Início, Carteira e Proventos
 js/views-proventos.js Proventos → Resumo (extrato detalhado)
-js/views-setores.js   Carteira → Distribuição: por setor e segmento (gráfico multinível)
+js/views-setores.js   Carteira → Distribuição: por setor e segmento (sunburst do ECharts, baixado do cdnjs só nesta página)
 js/views-mercado.js   Mercado, ficha do ativo, acompanhamento, comparador
 js/views-aprender.js  Aprender (vídeos, glossário, feed)
 js/views-perfil.js    feed “Para você” e Meu Perfil de Investidor (questionário)
