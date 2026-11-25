@@ -228,16 +228,9 @@ window.VIEWS = window.VIEWS || {};
       const { r, params } = ctx, aba = params[0] || "";
       const abas = [["", "Resumo"], ["calendario", "Calendário"], ["assembleias", "Assembleias"]];
       let corpo = "";
-      if (!aba) {
-        const rec = r.recebidos12.reduce((a, p) => a + p.valor, 0), anu = r.anunciados.reduce((a, p) => a + p.valor, 0);
-        const porAtivo = {}; r.recebidos12.forEach((p) => (porAtivo[p.tk] = (porAtivo[p.tk] || 0) + p.valor));
-        const rank = Object.entries(porAtivo).sort((a, b) => b[1] - a[1]).slice(0, 6);
-        corpo = `<div class="grid g3">${kpi("💰 Recebido em 12 meses", U.brl(rec), `Média de ${U.brl(rec / 12)} por mês`, "Valores líquidos que já caíram na sua conta.")}${kpi("⏳ Vai receber", U.brl(anu), `${r.anunciados.length} pagamentos anunciados`, "Proventos aprovados pelas empresas e ainda não pagos. Podem ser ajustados até o pagamento.")}${kpi("🔮 Estimado", '<span class="muted" style="font-size:20px">Fora dos totais</span>', "Projeções nunca se misturam com valores confirmados")}</div>
-          <section class="card section"><div class="card-h"><div><h2>Mês a mês</h2><div class="sub">Barras cheias = pago · tracejadas = anunciado</div></div></div><div class="chart" id="chProv"></div></section>
-          <div class="grid g2 section"><section class="card"><div class="card-h"><h2>Quem mais pagou</h2></div><div class="chart" id="chRank"></div></section>
-          <section class="card"><div class="card-h"><h2>Próximos pagamentos</h2><a class="small" href="#/proventos/calendario">Calendário</a></div>${r.anunciados.slice().sort((a, b) => (a.data < b.data ? -1 : 1)).map((x) => `<div class="list-item"><div class="date-box"><b>${x.data.slice(8)}</b><span>${U.MESES[+x.data.slice(5, 7) - 1]}</span></div><div class="grow"><div class="t">${linkAtivo(x.tk)}</div><div class="s">${U.rotuloProv(x.tp)}</div></div><span class="chip warn">Anunciado</span><b class="num">${U.brl(x.valor)}</b></div>`).join("") || '<div class="muted">Nenhum agora.</div>'}</section></div>`;
-        ctx._rank = rank;
-      } else if (aba === "calendario") {
+      // Resumo: extrato detalhado (js/views-proventos.js)
+      if (!aba) corpo = V._provResumo.html(ctx);
+      else if (aba === "calendario") {
         const base = mesCal || M.BASE.slice(0, 7);
         const [y, m] = base.split("-").map(Number);
         const primeiro = new Date(Date.UTC(y, m - 1, 1, 12)), ini = new Date(primeiro); ini.setUTCDate(1 - primeiro.getUTCDay());
@@ -256,12 +249,7 @@ window.VIEWS = window.VIEWS || {};
     },
     after(ctx) {
       const { r, params } = ctx, aba = params[0] || "";
-      if (!aba) {
-        const meses = {}; r.prov.forEach((p) => { const k = p.data.slice(0, 7); meses[k] = meses[k] || [0, 0]; meses[k][p.recebido ? 0 : 1] += p.valor; });
-        const ks = Object.keys(meses).sort().slice(-13);
-        CH.barras(document.getElementById("chProv"), ks.map((k) => ({ rotulo: U.mesAno(k + "-01"), valores: meses[k] })), [{ nome: "Pago", cor: "#0e7c86" }, { nome: "Anunciado", cor: "#c27c0e", hachura: true }], { fmtY, altura: 260 });
-        barrasH(document.getElementById("chRank"), (ctx._rank || []).map(([tk, v]) => ({ rot: tk, v })));
-      }
+      if (!aba) V._provResumo.after(ctx);
       if (aba === "calendario") {
         document.querySelectorAll("[data-mes]").forEach((b) => b.addEventListener("click", () => { const [y, m] = (mesCal || M.BASE.slice(0, 7)).split("-").map(Number); const d = new Date(Date.UTC(y, m - 1 + +b.dataset.mes, 1)); mesCal = d.toISOString().slice(0, 7); window.APP.render(); }));
         document.getElementById("calMeus").addEventListener("change", (e) => { U.store.set("cal:meus", e.target.checked); window.APP.render(); });

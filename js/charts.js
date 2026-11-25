@@ -103,7 +103,9 @@ window.CH = (function () {
         s += `<rect x="${X(i) - bw / 2}" y="${yTop}" width="${bw}" height="${Math.max(0, h - 1)}" rx="3" fill="${series[k].cor}" ${series[k].hachura ? `fill-opacity=".45" stroke="${series[k].cor}" stroke-dasharray="3 2"` : ""}><title>${g.rotulo} · ${series[k].nome}: ${fmtY(v)}</title></rect>`;
         acc += v;
       });
-      s += `<text x="${X(i)}" y="${H - 8}" class="axis" text-anchor="middle">${g.rotulo}</text>`;
+      // muitas barras: mostra só algumas datas no eixo, para não encavalar (~56px cada)
+      const passo = Math.max(1, Math.ceil((grupos.length * 56) / (W - P.l - P.r)));
+      if ((grupos.length - 1 - i) % passo === 0) s += `<text x="${X(i)}" y="${H - 8}" class="axis" text-anchor="middle">${g.rotulo}</text>`;
     });
     s += "</svg>";
     el.innerHTML = (series.length > 1 ? `<div class="legend">${series.map((se) => `<span><i style="background:${se.cor};${se.hachura ? "opacity:.5" : ""}"></i>${se.nome}</span>`).join("")}</div>` : "") + s;

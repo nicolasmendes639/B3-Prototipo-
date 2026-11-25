@@ -79,6 +79,8 @@ js/mercado.js         market data SIMULADO (determinístico) + eventos
 js/carteira.js        cálculos por investidor (Dietz, proventos, pendências)
 js/cripto.js          CRIPTO (ETFs de Criptomoedas da B3) + CONSOL (consolidação e períodos)
 js/rentabilidade.js   RENT: rentabilidade com/sem proventos e índices de referência
+js/proventos.js       PROV: lançamentos de proventos (pago, provisionado, data com futura)
+js/views-proventos.js Proventos → Resumo
 js/feed.js            pontuação do feed e do perfil
 js/views-*.js         telas · js/videos.js player · js/chat.js assistente
 js/tutoriais.js       boas-vindas, tutoriais e motor de tour guiado
@@ -103,7 +105,7 @@ python3 scripts/build_data.py</code></pre>
         <div class="tbl-wrap"><table><thead><tr><th>Rota</th><th>Conteúdo</th><th>Componentes-chave</th></tr></thead><tbody>
           <tr><td><code>#/inicio</code></td><td>Saldo total, ganho/perda no período (7D/30D/6M/12M/24M/Desde o começo) em R$ e %, carteira em pizza + maiores investimentos, contribuição por ativo, próximos proventos</td><td>Hero, LineChart, Donut, PositionList, DivergingBars</td></tr>
           <tr><td><code>#/carteira[/rentabilidade|ativos|movimentacoes]</code></td><td>Distribuição por classe/conta/tipo; rentabilidade × CDI × Ibovespa; todos os investimentos; fluxo de entradas/saídas</td><td>Donut, Bars, LineChart, Sparkline</td></tr>
-          <tr><td><code>#/proventos[/calendario|assembleias]</code></td><td>Pago × anunciado × estimado; mês a mês; ranking; calendário mensal; voto a distância</td><td>StackedBars, CalendarGrid, VoteForm</td></tr>
+          <tr><td><code>#/proventos[/calendario|assembleias]</code></td><td>Totais; gráfico (mensal/trimestral/semestral/anual, por pagamento ou data com, completo/categoria/segmento/ativo); rendimento mês a mês (R$/YoC/DY); ativos por categoria; lista com busca, corretora, período e agrupamento; proventos futuros; calendário mensal; voto a distância</td><td>StackedBars, Donut, SortableTable, CalendarGrid, VoteForm</td></tr>
           <tr><td><code>#/mercado[/meus|destaques|acompanhar|comparar|ofertas]</code></td><td>Índices ao vivo, gráfico real dos ativos do investidor (inclusive ETFs de Criptomoedas), rankings, watchlist + alertas, comparador, ofertas</td><td>TradingView widgets, Picker, Watchlist</td></tr>
           <tr><td><code>#/ativo/:ticker</code></td><td>Ficha: preço, gráfico ao vivo, indicadores explicados, proventos, conteúdos relacionados</td><td>AssetHeader, IndicatorGrid</td></tr>
           <tr><td><code>#/aprender[/para-voce|site]</code></td><td>Vídeos + quiz + XP, glossário, feed por perfil, tutoriais e FAQ</td><td>VideoPlayer, Quiz, FeedCard, Tour</td></tr>
@@ -175,7 +177,7 @@ VideoProgresso  { videoId, concluidoEm, quizAcertou: bool }   // XP = 10 por ví
         <h3>Rentabilidade (Carteira → Rentabilidade)</h3><p>Dietz modificado mensal encadeado: <code>r = (V₁ − V₀ − F) ÷ (V₀ + F/2)</code>; comparado, à escolha do usuário, a CDI, Ibovespa, IFIX, IPCA, Poupança (0,5% a.m. + TR) e S&amp;P 500 em reais. A curva “com proventos” soma ao retorno do mês os proventos recebidos: <code>r = (V₁ − V₀ − F + P) ÷ (V₀ + F/2)</code>.</p>
         <h3>Rentabilidade com proventos (por ativo)</h3><p>Soma simples, sem reinvestir: <code>com proventos = variação do preço + Σ proventos por cota ÷ preço inicial</code>. Ex.: subiu 10% e pagou 10% → 20%. <b>Posição</b>: desde a data de entrada, sobre o preço médio, contando proventos com data-com a partir da entrada e já pagos. <b>Ativo em 12 meses</b> (ficha, comparador, acompanhamento): proventos com data ex no período. Ativos que não distribuem mostram só a variação do preço.</p>
         <h3>Contribuição</h3><p>Ganho de cada posição no período; exibido em barras divergentes (verde/vermelho + seta + valor, nunca só cor).</p>
-        <h3>Proventos</h3><p>Pago, anunciado e estimado sempre separados; estimativas nunca entram em totais.</p>
+        <h3>Proventos</h3><p>Pago, anunciado e estimado sempre separados; estimativas nunca entram em totais. Cada lançamento (<code>PROV.lancamentos(id)</code>) tem quantidade, valor bruto por cota, total bruto e líquido (JCP com 15% de IR na fonte), data com, pagamento e corretora. Status: <b>pago</b>, <b>provisionado</b> (data com já passou, ainda não pago) e <b>futura</b> (data com depois da data-base). Os últimos 12 meses vêm da carteira; antes disso, o histórico é estimado pelo provento anual por cota de cada ativo, calibrado pelo que ele pagou nos últimos 12 meses, com a quantidade crescendo até a atual. YoC = proventos ÷ custo (preço médio × quantidade); DY = proventos ÷ valor atual.</p>
         <p>Implementação de referência: <code>js/cripto.js → CONSOL</code>, <code>js/carteira.js</code> e <code>js/rentabilidade.js → RENT</code>.</p>
       </section>
 

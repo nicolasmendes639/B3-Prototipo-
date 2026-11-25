@@ -31,8 +31,10 @@
       { rota: "ativo/PETR4", sel: "#watchBtn", titulo: "5. Acompanhar", texto: "Coloca o ativo na sua lista de acompanhamento, separada do que você tem." },
     ] },
     { id: "proventos", cat: "Meus investimentos", ic: "💰", titulo: "Proventos e calendário", desc: "Quanto recebeu, quanto vai receber e quando.", passos: [
-      { rota: "proventos", sel: "#app .grid.g3", titulo: "Recebido × a receber", texto: "O que já caiu na conta fica separado do que foi anunciado. Estimativas nunca entram nos totais." },
-      { rota: "proventos", sel: ".card:has(#chProv)", titulo: "Mês a mês", texto: "Barras cheias são valores pagos. As tracejadas são valores anunciados." },
+      { rota: "proventos", sel: ".pk-row", titulo: "Recebido × provisionado", texto: "O que já caiu na conta fica separado do que foi anunciado e ainda vai cair. Estimativas nunca entram nos totais." },
+      { rota: "proventos", sel: ".prov-top .prov-fil", titulo: "Filtros do gráfico", texto: "Agrupe por mês, trimestre, semestre ou ano, escolha o período e veja por categoria, segmento ou ativo." },
+      { rota: "proventos", sel: ".card:has(#provMM)", titulo: "Mês a mês", texto: "Quanto caiu em cada mês, nos últimos 12 meses e ano a ano. Troque para YoC ou DY para ver em porcentagem." },
+      { rota: "proventos", sel: ".card:has(#provFu)", titulo: "Proventos futuros", texto: "Provisionado: você já tem direito. Data com futura: terá direito se ainda tiver o ativo na data com." },
       { rota: "proventos/calendario", sel: ".cal", titulo: "Calendário", texto: "📌 data-com, ✂️ data ex, 💰 pagamento, 📊 resultado e 🗳️ assembleia, dia a dia." },
       { rota: "proventos/calendario", sel: "#calMeus", titulo: "Só meus ativos", texto: "Desmarque para ver também eventos de outros ativos." },
     ] },
