@@ -18,6 +18,13 @@ window.U = (function () {
   const MASK = "R$ ••••••";
   const brl = (v, force) => (state.hide && !force ? MASK : nfBRL.format(v || 0));
   const num = (v, d = 2) => (v === null || v === undefined || isNaN(v) ? "—" : d === 0 ? nf0.format(v) : new Intl.NumberFormat("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d }).format(v));
+  // Valor abreviado: 2.021.435 -> "2,02 mi"; 123.456 -> "123 mil"; abaixo de mil mantém o número.
+  const compacto = (v) => {
+    const a = Math.abs(v || 0), sg = v < 0 ? "-" : "";
+    if (a >= 999500) return sg + new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(a / 1e6) + " mi";
+    if (a >= 1e3) return sg + nf0.format(a / 1e3) + " mil";
+    return sg + nf0.format(a);
+  };
   const qtd = (v) => (state.hide ? "•••" : Number.isInteger(v) ? nf0.format(v) : num(v, 2));
   const pct = (v, d = 2) => (v === null || v === undefined || isNaN(v) ? "—" : nf2.format(+v.toFixed(d)).replace(/,00$/, ",00") + "%");
   const sinal = (v, d = 2) => {
@@ -55,5 +62,5 @@ window.U = (function () {
   // Botão "i" que abre explicação de metodologia/origem do dado
   const info = (texto, rotulo = "Como calculamos") => `<button class="info" type="button" data-info="${esc(texto)}" aria-label="${esc(rotulo)}: ${esc(texto)}">i</button>`;
 
-  return { state, store, brl, num, qtd, pct, sinal, data, dataCurta, mesAno, esc, slug, normaliza, rotuloClasse, rotuloTipo, rotuloMov, rotuloProv, downloadCSV, toast, info, MESES };
+  return { state, store, brl, compacto, num, qtd, pct, sinal, data, dataCurta, mesAno, esc, slug, normaliza, rotuloClasse, rotuloTipo, rotuloMov, rotuloProv, downloadCSV, toast, info, MESES };
 })();
