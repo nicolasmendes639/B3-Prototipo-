@@ -681,3 +681,11 @@ span.pos { display: inline; padding: 0; border-radius: 0; color: var(--pos); }
 .chip-tg[aria-pressed="true"]::after { content: "✓"; font-size: 13px; }
 .kpi-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
 .rent-prov { background: #f3faf6; }
+
+/* ===== Sub-abas em destaque (azul) — pedido do squad: "difícil de enxergar" ===== */
+.subtabs { gap: 8px; padding: 6px; margin: 0 0 24px; background: #e8f0fc; border: 1px solid #c9dbf6; border-radius: 16px; width: max-content; max-width: 100%; }
+.subtabs a { padding: 11px 20px; border-radius: 12px; color: #0b4aa2; background: #fff; border: 1.5px solid #b7cdf0; font-weight: 700; font-size: 16px; transition: background .15s, color .15s, transform .15s; }
+.subtabs a:hover { background: #d6e5fb; border-color: #8fb3ea; transform: translateY(-1px); }
+.subtabs a.on { background: #0b56b8; border-color: #0b56b8; color: #fff; box-shadow: 0 6px 16px rgba(11, 86, 184, .3); }
+.subtabs a:focus-visible { outline: 3px solid #5b9cff; outline-offset: 2px; }
+@media (max-width: 560px) { .subtabs { width: 100%; } .subtabs a { padding: 10px 14px; font-size: 15px; } }

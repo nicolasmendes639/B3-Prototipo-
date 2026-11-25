@@ -15,11 +15,11 @@ Protótipo navegável de uma nova **Área do Investidor da B3**. Ele junta em um
 | Aba | O que tem |
 |---|---|
 | **Início** | Saldo total e quanto a carteira **ganhou ou perdeu nos últimos 30 dias**, em R$ e % (também 7D, 6M e 12M). Logo abaixo vêm a carteira em gráfico de pizza, o que mais pesou no resultado e os próximos recebimentos. |
-| **Carteira** | Distribuição por classe, conta e tipo; rentabilidade × CDI × Ibovespa; todos os investimentos; entradas e saídas. |
+| **Carteira** | Distribuição por classe, conta e tipo; rentabilidade × CDI, Ibovespa, Dólar e outros índices; todos os investimentos; entradas e saídas. |
 | **Proventos** | Pago × anunciado, mês a mês, calendário visual (data-com, data ex e pagamento) e assembleias. |
 | **Mercado** | Gráficos **reais** dos índices e dos ativos do investidor (inclusive ETFs de Criptomoedas); destaques; acompanhamento e alertas; comparador; ofertas. |
 | **Aprender** | 8 vídeos animados de cerca de 1 minuto para iniciantes, com quiz e XP; glossário; feed por perfil; tutoriais guiados. |
-| **Relatórios** | O único lugar com tabelas: posição, movimentações e proventos, exportação em CSV e informes de IR. |
+| **Relatórios** | O único lugar com tabelas: posição, extrato por período (30 dias a 12 meses), **planilha Excel (.xlsx) com várias abas**, proventos e prévia do IR do ano. |
 | **Meu Perfil de Investidor** | Questionário de perfil (8 perguntas, ~2 min), resultado e botão para refazer. Ao entrar no site, quem ainda não respondeu recebe um convite, com a opção “Fazer mais tarde”. |
 
 **Rentabilidade com proventos:** em todo lugar que mostra a rentabilidade de um ativo que distribui (ações, FIIs, ETFs e BDRs que pagam), aparecem duas: só o preço e com os proventos pagos (preço + proventos ÷ preço inicial, sem reinvestir). Na carteira, conta desde a compra; na ficha, no comparador e no acompanhamento, em 12 meses.
@@ -53,7 +53,7 @@ js/videos.js          roteiro e player dos vídeos
 js/chat.js            assistente de IA
 js/tutoriais.js       boas-vindas e tours guiados
 js/cripto.js          ETFs de Criptomoedas + consolidação das contas
-js/rentabilidade.js   rentabilidade com e sem proventos + índices (CDI, IPCA, Poupança, Ibovespa, IFIX, S&P 500)
+js/rentabilidade.js   rentabilidade com e sem proventos + índices (CDI, IPCA, Poupança, Ibovespa, IFIX, S&P 500, Dólar)
 js/data.js            dados fictícios dos 100 investidores
 server.py             servidor local + IA real (opcional)
 versao-antiga-v1/     v1 guardada (arquivo único)

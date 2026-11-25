@@ -187,7 +187,7 @@ window.VIEWS = window.VIEWS || {};
         // índices escolhidos (vários de uma vez ou só um); a escolha fica salva neste navegador
         const RT = window.RENT, datas = r.rent.map((p) => p[0]);
         const desenha = () => {
-          const sel = U.store.get("rent:idx", ["cdi", "ibov"]).filter((k) => RT.INDICES[k]);
+          const sel = U.store.get("rent:idx2", ["cdi", "ibov", "usd"]).filter((k) => RT.INDICES[k]);
           document.querySelectorAll("[data-idx]").forEach((b) => b.setAttribute("aria-pressed", String(sel.includes(b.dataset.idx))));
           const linhas = [{ nome: "Sua carteira", cor: "#06377b", pontos: r.rent, desc: "Só a variação do patrimônio" }, { nome: "Sua carteira + proventos", cor: "#137a43", pontos: r.rentProv, desc: "Somando dividendos, JCP e rendimentos" }]
             .concat(sel.map((k) => ({ nome: RT.INDICES[k].nome, cor: RT.INDICES[k].cor, pontos: RT.acumulado(k, datas), tracejado: true, desc: RT.INDICES[k].desc })));
@@ -195,8 +195,8 @@ window.VIEWS = window.VIEWS || {};
           document.getElementById("kpiRent").innerHTML = linhas.map((l) => kpi(`<i class="kpi-dot" style="background:${l.cor}"></i>${l.nome} (12m)`, U.sinal(l.pontos.at(-1)[1]), l.desc)).join("");
         };
         document.querySelectorAll("[data-idx]").forEach((b) => b.addEventListener("click", () => {
-          const sel = U.store.get("rent:idx", ["cdi", "ibov"]), k = b.dataset.idx;
-          U.store.set("rent:idx", sel.includes(k) ? sel.filter((x) => x !== k) : sel.concat(k)); desenha();
+          const sel = U.store.get("rent:idx2", ["cdi", "ibov", "usd"]), k = b.dataset.idx;
+          U.store.set("rent:idx2", sel.includes(k) ? sel.filter((x) => x !== k) : sel.concat(k)); desenha();
         }));
         desenha();
         const comProv = U.store.get("contrib:prov", true);

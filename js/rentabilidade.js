@@ -1,4 +1,4 @@
-/* Rentabilidade com e sem proventos + índices de referência (CDI, IPCA, Poupança, Ibovespa, IFIX, S&P 500).
+/* Rentabilidade com e sem proventos + índices de referência (CDI, IPCA, Poupança, Ibovespa, IFIX, S&P 500, Dólar).
  * Rentabilidade com proventos = variação do preço + proventos ÷ preço inicial (soma simples, sem reinvestir).
  * Ex.: a cota subiu 10% e pagou proventos equivalentes a 10% do preço inicial → 20% com proventos.
  */
@@ -70,6 +70,7 @@ window.RENT = (function () {
     ipca: { nome: "IPCA", cor: "#b3261e", desc: "Inflação oficial", fator: () => diariaDeMensal(IPCA_MES) },
     poup: { nome: "Poupança", cor: "#5b6b82", desc: "0,5% ao mês + TR", fator: () => diariaDeMensal(POUP_MES) },
     sp500: { nome: "S&P 500", cor: "#1f8a4c", desc: "Bolsa americana, em reais (via IVVB11)", fator: () => deSerie(M.cotacoes.IVVB11.serie) },
+    usd: { nome: "Dólar", cor: "#2a6f97", desc: "Variação do dólar em reais (USD/BRL)", fator: () => deSerie(M.indices.USD.serie) },
   };
   const cache = {};
   const fator = (k) => (cache[k] = cache[k] || INDICES[k].fator());
