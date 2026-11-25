@@ -119,6 +119,7 @@ window.VIEWS = window.VIEWS || {};
         <div class="alloc"><div><div id="dHome" style="display:grid;place-items:center"></div><div class="legend-big" style="margin-top:14px">${classes.map((c) => `<div class="row"><span class="dot" style="background:${c.cor}"></span>${c.nome}<b>${U.num(c.pct, 1)}%</b></div>`).join("")}</div></div>
           <div>${posLista(its, 6, p)}${its.length > 6 ? `<a class="small" href="#/carteira/ativos" style="display:block;margin:8px 10px 0">+ ${its.length - 6} investimentos</a>` : ""}</div></div>
       </section>
+      ${ativosHoje(id)}
       <div class="grid g2 section">
         <section class="card"><div class="card-h"><div><h2>O que mais mexeu no resultado</h2><div class="sub">Ganho ou perda em reais ${perTxt(p, id)}</div></div></div><div class="chart" id="chContrib"></div></section>
         <section class="card"><div class="card-h"><div><h2>Próximos recebimentos</h2><div class="sub">Proventos já anunciados</div></div><a href="#/proventos" class="small">Ver todos</a></div>
@@ -134,6 +135,7 @@ window.VIEWS = window.VIEWS || {};
       const top = ct.slice(0, 3).concat(ct.slice(-3).filter((x) => !ct.slice(0, 3).includes(x)));
       barrasH(document.getElementById("chContrib"), top.map((c) => ({ rot: c.tipo === "rf" ? c.nome : c.cod, v: c.ganho })));
       document.querySelectorAll("[data-per]").forEach((b) => b.addEventListener("click", () => { U.store.set("periodo", b.dataset.per); window.APP.render(); }));
+      document.querySelectorAll("[data-movper]").forEach((b) => b.addEventListener("click", () => { U.store.set("mov:per", b.dataset.movper); const y = window.scrollY; window.APP.render(); window.scrollTo(0, y); }));
     },
   };
 
@@ -146,6 +148,33 @@ window.VIEWS = window.VIEWS || {};
       <span class="num ${r.v >= 0 ? "pos" : "neg"}">${r.v >= 0 ? "▲" : "▼"} ${U.state.hide ? "••••" : U.brl(Math.abs(r.v))}</span></div>`).join("");
   }
   V._barrasH = barrasH;
+
+  // Aportes × rendimento, mês a mês: quanto do patrimônio é dinheiro colocado e quanto é rendimento
+  function aportesVsRend(r) {
+    const fluxo = {}; r.inv.mov.forEach((m) => { const k = m[0].slice(0, 7); fluxo[k] = (fluxo[k] || 0) + (m[3] === "Compra" ? m[7] : -m[7]); });
+    let acc = r.evol[0][1];
+    const aportado = r.evol.map(([d], i) => { if (i) acc += fluxo[d.slice(0, 7)] || 0; return [d, acc]; });
+    const ini = r.evol[0][1], fim = r.evol.at(-1)[1], aportes = aportado.at(-1)[1] - ini;
+    return { aportado, ini, fim, aportes, rend: fim - ini - aportes };
+  }
+
+  // Seus ativos hoje: quem sobe e quem cai entre os ativos da pessoa (dia, semana, mês)
+  const MOV_PER = [["d1", "Hoje"], ["d7", "Semana"], ["d30", "Mês"]];
+  function variacoes(x) {
+    if (x.tipo === "cripto") { const ch = (CR.MOEDAS[x.cod] || {}).ch || {}; return { d1: ch.d1 ?? 0, d7: ch.d7 ?? 0, d30: ch.d30 ?? 0 }; }
+    const c = M.cotacoes[x.cod], s = c.serie, L = s.length, v = (n) => (s[L - 1][1] / s[L - 1 - n][1] - 1) * 100;
+    return { d1: c.var, d7: v(5), d30: v(21) };
+  }
+  function ativosHoje(id) {
+    const per = U.store.get("mov:per", "d1");
+    const ls = K.itens(id).filter((x) => (x.tipo === "b3" && x.classe !== "Tesouro Direto" && M.cotacoes[x.cod]) || x.tipo === "cripto").map((x) => Object.assign({ x }, variacoes(x))).sort((a, b) => b[per] - a[per]);
+    if (!ls.length) return "";
+    const alta = ls[0], baixa = ls[ls.length - 1], nome = MOV_PER.find((m) => m[0] === per)[1].toLowerCase();
+    const linha = (l) => `<a class="pos mov" href="${hrefItem(l.x)}">${logo(l.x)}<div class="nm"><b>${U.esc(l.x.cod)}</b><span>${U.esc(l.x.nome)}</span></div><div class="vl" style="display:flex;gap:14px;align-items:center">${MOV_PER.map(([k, t]) => `<div style="text-align:right;${k === per ? "" : "opacity:.6"}"><span class="small muted">${t}</span><div>${U.sinal(l[k])}</div></div>`).join("")}</div></a>`;
+    return `<section class="card section" id="ativosHoje"><div class="card-h"><div><h2>Seus ativos hoje</h2><div class="sub">Quem está subindo e quem está caindo entre os seus ativos</div></div><div class="seg" role="group" aria-label="Período">${MOV_PER.map(([k, t]) => `<button data-movper="${k}" aria-pressed="${k === per}">${t}</button>`).join("")}</div></div>
+      <div class="grid g2" style="margin-bottom:10px"><div class="alert ok" style="margin:0"><span class="ic">📈</span><div><b>Maior alta ${nome === "hoje" ? "hoje" : "no " + (nome === "semana" ? "período de 7 dias" : "mês")}: ${U.esc(alta.x.cod)}</b><p>${U.sinal(alta[per])}</p></div></div><div class="alert" style="margin:0"><span class="ic">📉</span><div><b>Maior queda ${nome === "hoje" ? "hoje" : "no " + (nome === "semana" ? "período de 7 dias" : "mês")}: ${U.esc(baixa.x.cod)}</b><p>${U.sinal(baixa[per])}</p></div></div></div>
+      <div class="pos-list">${ls.slice(0, 6).map(linha).join("")}</div>${ls.length > 6 ? `<details class="tut-steps"><summary>Ver todos os ${ls.length} ativos</summary><div class="pos-list" style="margin-top:8px">${ls.slice(6).map(linha).join("")}</div></details>` : ""}</section>`;
+  }
 
   // =============== CARTEIRA ===============
   V.carteira = {
@@ -169,11 +198,18 @@ window.VIEWS = window.VIEWS || {};
             <div class="idx-sel" role="group" aria-label="Comparar com"><span class="lbl">Comparar com:</span>${Object.entries(window.RENT.INDICES).map(([k, ix]) => `<button type="button" class="chip-tg" data-idx="${k}" aria-pressed="false" title="${ix.desc}"><i style="background:${ix.cor}"></i>${ix.nome}</button>`).join("")}</div>
             <div class="chart" id="chRent"></div></section>
           <div class="grid g4 section" id="kpiRent"></div>
+          ${(() => { const a = aportesVsRend(r), cresc = a.fim - a.ini; return `<section class="card section"><div class="card-h"><div><h2>Aportes × rendimento</h2><div class="sub">Mês a mês: a distância entre as linhas é o que seus investimentos renderam ${U.info("Dinheiro aportado = patrimônio do início + compras e aplicações − vendas e resgates de cada mês. Rendimento = patrimônio − dinheiro aportado. Na amostra, só as movimentações de renda variável e Tesouro estão disponíveis.")}</div></div></div><div class="chart" id="chAportes"></div>
+            <div class="grid g3" style="margin-top:14px">${kpi("Crescimento do patrimônio (12m)", U.brl(cresc), `de ${U.brl(a.ini)} para ${U.brl(a.fim)}`)}${kpi("Veio de aportes", `<span class="${a.aportes >= 0 ? "" : "neg"}">${U.brl(a.aportes)}</span>`, "dinheiro que você colocou (− o que tirou)")}${kpi("Veio de rendimento", `<span class="${a.rend >= 0 ? "pos" : "neg"}">${U.brl(a.rend)}</span>`, a.rend >= 0 ? "seus investimentos agregaram valor" : "os investimentos perderam valor no período")}</div></section>`; })()}
           <section class="card section"><div class="card-h"><div><h2>Quem ganhou e quem perdeu</h2><div class="sub">Contribuição de cada investimento ${perTxt(p, id)}${comProv ? ", somando os proventos" : ""}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" role="group" aria-label="Proventos"><button data-cprov="0" aria-pressed="${!comProv}">Só preço</button><button data-cprov="1" aria-pressed="${comProv}">Com proventos</button></div>${segPer(p)}</div></div><div id="chContrib2"></div></section>`;
       } else if (aba === "ativos") {
         const total = its.reduce((a, x) => a + x.valor, 0);
-        const grupos = [["Tesouro Direto", (x) => x.classe === "Tesouro Direto"], ["Renda fixa e fundos", (x) => x.tipo === "rf"]];
-        corpo = GRUPOS_RV.map(([t, f]) => tabelaAtivos(id, t, its.filter(f), total)).join("") + grupos.map(([t, f]) => { const g = its.filter(f); if (!g.length) return ""; const tot = g.reduce((a, x) => a + x.valor, 0); return `<section class="card section"><div class="card-h"><h2>${t}</h2><b class="num">${U.brl(tot)}</b></div><div class="grid g2">${g.map((x) => { const cot = x.tipo === "b3" ? M.cotacoes[x.cod] : null; return `<a class="pos" href="${hrefItem(x)}" style="border:1px solid var(--line)">${logo(x)}<div class="nm"><b${emp(x)}>${U.esc(x.tipo === "rf" ? x.nome : x.cod)}</b><span>${U.esc(x.tipo === "rf" ? x.instTxt : x.nome)}</span></div><div class="vl"><b>${U.brl(x.valor)}</b>${cot ? CH.spark(cot.serie.slice(-60).map((s) => s[1]), cot.var12m >= 0 ? "#16a34a" : "#dc2626", 90, 24) : x.tipo === "cripto" ? U.sinal(CR.MOEDAS[x.cod].ch.d30) : '<span class="small muted">rende ~CDI</span>'}</div></a>`; }).join("")}</div></section>`; }).join("") + '<p class="small muted">Preço médio simulado neste protótipo. Para exportar a posição completa, use <a href="#/relatorios">Relatórios</a>.</p>';
+        // Renda fixa: "tudo junto" (uma visão consolidada) ou "por produto" (Tesouro, CDB, LCI, LCA, debênture separados)
+        const rfModo = U.store.get("rf:modo", "junto"), ehRF = (x) => x.classe === "Tesouro Direto" || (x.tipo === "rf" && x.classe === "Renda fixa");
+        const subsRF = [...new Set(its.filter((x) => x.tipo === "rf" && x.classe === "Renda fixa").map((x) => x.sub))];
+        const grupos = (rfModo === "junto" ? [["Renda fixa", ehRF]] : [["Tesouro Direto", (x) => x.classe === "Tesouro Direto"]].concat(subsRF.map((sb) => [U.rotuloTipo(sb), (x) => x.tipo === "rf" && x.classe === "Renda fixa" && x.sub === sb])))
+          .concat([["Fundos", (x) => x.classe === "Fundos"]]);
+        const temRF = its.some(ehRF);
+        corpo = GRUPOS_RV.map(([t, f]) => tabelaAtivos(id, t, its.filter(f), total)).join("") + (temRF ? `<div class="idx-sel section" role="group" aria-label="Como mostrar a renda fixa"><span class="lbl">Renda fixa:</span><button type="button" class="chip-tg" data-rfmodo="junto" aria-pressed="${rfModo === "junto"}">Tudo junto</button><button type="button" class="chip-tg" data-rfmodo="produto" aria-pressed="${rfModo === "produto"}">Por produto</button></div>` : "") + grupos.map(([t, f]) => { const g = its.filter(f); if (!g.length) return ""; const tot = g.reduce((a, x) => a + x.valor, 0); return `<section class="card section"><div class="card-h"><div><h2>${t}</h2>${t === "Renda fixa" ? `<div class="sub">${[...new Set(g.map((x) => (x.classe === "Tesouro Direto" ? "Tesouro Direto" : U.rotuloTipo(x.sub))))].join(" · ")}</div>` : ""}</div><b class="num">${U.brl(tot)} <span class="small muted">· ${U.num((tot / total) * 100, 1)}% da carteira</span></b></div><div class="grid g2">${g.map((x) => { const cot = x.tipo === "b3" ? M.cotacoes[x.cod] : null; return `<a class="pos" href="${hrefItem(x)}" style="border:1px solid var(--line)">${logo(x)}<div class="nm"><b${emp(x)}>${U.esc(x.tipo === "rf" ? x.nome : x.cod)}</b><span>${U.esc(x.tipo === "rf" ? x.instTxt : x.nome)}</span></div><div class="vl"><b>${U.brl(x.valor)}</b>${cot ? CH.spark(cot.serie.slice(-60).map((s) => s[1]), cot.var12m >= 0 ? "#16a34a" : "#dc2626", 90, 24) : x.tipo === "cripto" ? U.sinal(CR.MOEDAS[x.cod].ch.d30) : '<span class="small muted">rende ~CDI</span>'}</div></a>`; }).join("")}</div></section>`; }).join("") + '<p class="small muted">Preço médio simulado neste protótipo. Para exportar a posição completa, use <a href="#/relatorios">Relatórios</a>.</p>';
       } else if (aba === "movimentacoes") {
         const ult = r.inv.mov.slice(-8).reverse();
         corpo = `<section class="card"><div class="card-h"><div><h2>Dinheiro que entrou e saiu</h2><div class="sub">Compras e aplicações × vendas e resgates, por mês</div></div></div><div class="chart" id="chMov"></div></section>
@@ -190,6 +226,8 @@ window.VIEWS = window.VIEWS || {};
         CH.barras(document.getElementById("chTipos"), t.map(([k, v]) => ({ rotulo: k, valores: [v] })), [{ nome: "Valor", cor: "#06377b" }], { fmtY, altura: 230 });
       }
       if (aba === "rentabilidade") {
+        const av = aportesVsRend(r);
+        CH.linha(document.getElementById("chAportes"), { series: [{ nome: "Patrimônio", cor: "#06377b", pontos: r.evol }, { nome: "Dinheiro aportado", cor: "#c27c0e", pontos: av.aportado, tracejado: true }], area: true, fmtY, fmtX: (d, l) => (l ? U.data(d) : U.mesAno(d)), altura: 260, legenda: true, label: "Patrimônio × dinheiro aportado" });
         // índices escolhidos (vários de uma vez ou só um); a escolha fica salva neste navegador
         const RT = window.RENT, datas = r.rent.map((p) => p[0]);
         const desenha = () => {
@@ -211,7 +249,7 @@ window.VIEWS = window.VIEWS || {};
         document.querySelectorAll("[data-cprov]").forEach((b) => b.addEventListener("click", () => { U.store.set("contrib:prov", b.dataset.cprov === "1"); window.APP.render(); }));
         document.querySelectorAll("[data-per]").forEach((b) => b.addEventListener("click", () => { U.store.set("periodo", b.dataset.per); window.APP.render(); }));
       }
-      if (aba === "ativos") ordenaTabelas();
+      if (aba === "ativos") { ordenaTabelas(); document.querySelectorAll("[data-rfmodo]").forEach((b) => b.addEventListener("click", () => { U.store.set("rf:modo", b.dataset.rfmodo); window.APP.render(); })); }
       if (aba === "movimentacoes") {
         const mm = {}; r.inv.mov.forEach((m) => { const k = m[0].slice(0, 7); mm[k] = mm[k] || [0, 0]; mm[k][m[3] === "Compra" ? 0 : 1] += m[7]; });
         const ks = Object.keys(mm).sort().slice(-12);

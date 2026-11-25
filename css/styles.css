@@ -778,3 +778,8 @@ span.pos { display: inline; padding: 0; border-radius: 0; color: var(--pos); }
   .cat-sum { flex-wrap: wrap; }
   .acc-k { margin-left: 0; }
 }
+/* Seus ativos hoje: no celular, as variações vão para baixo do nome */
+@media (max-width: 560px) {
+  .pos.mov { grid-template-columns: 46px 1fr; }
+  .pos.mov .vl { grid-column: 1 / -1; justify-content: space-between; }
+}
