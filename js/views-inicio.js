@@ -4,7 +4,7 @@ window.VIEWS = window.VIEWS || {};
   const U = window.U, C = window.CATALOGO, M = window.MERCADO, CH = window.CH, D = window.B3DATA, K = window.CONSOL, CR = window.CRIPTO;
 
   // ---------- helpers compartilhados ----------
-  const fmtY = (v, eixo) => (U.state.hide ? (eixo ? "•••" : "R$ ••••") : eixo ? (Math.abs(v) >= 1e6 ? U.num(v / 1e6, 1) + " mi" : Math.abs(v) >= 1e3 ? U.num(v / 1e3, 0) + " mil" : U.num(v, 0)) : U.brl(v));
+  const fmtY = (v, eixo) => (U.state.hide ? (eixo ? "•••" : "R$ ••••") : eixo ? U.compacto(v) : U.brl(v));
   const fmtPctY = (v, eixo) => (eixo ? U.num(v, 0) + "%" : (v >= 0 ? "+" : "") + U.num(v, 2) + "%");
   const linkAtivo = (tk) => `<a class="tk" href="#/ativo/${U.slug(tk)}">${U.esc(tk)}</a>`;
   const fonte = (extra = "") => `<div class="card-f"><span>Fontes: B3, corretoras e carteiras conectadas</span>·<span>Posição de ${U.data(D.dataBase)}</span>${extra ? "·<span>" + extra + "</span>" : ""}</div>`;
@@ -223,7 +223,7 @@ window.VIEWS = window.VIEWS || {};
       const { id, r, params } = ctx, aba = params[0] || "";
       if (!aba) {
         V._setores.after(ctx);
-        CH.rosca(document.getElementById("dCl"), K.porClasse(id), { centro: U.state.hide ? "•••" : U.num(K.itens(id).reduce((a, x) => a + x.valor, 0) / 1000, 0) + " mil", sub: "total" });
+        CH.rosca(document.getElementById("dCl"), K.porClasse(id), { centro: U.state.hide ? "•••" : U.compacto(K.itens(id).reduce((a, x) => a + x.valor, 0)), sub: "total em R$" });
         const t = Object.entries(ctx._tipos || {}).sort((a, b) => b[1] - a[1]);
         CH.barras(document.getElementById("chTipos"), t.map(([k, v]) => ({ rotulo: k, valores: [v] })), [{ nome: "Valor", cor: "#06377b" }], { fmtY, altura: 230 });
       }

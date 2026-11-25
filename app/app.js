@@ -28,7 +28,7 @@
   const ALIAS = { "visao-geral": "inicio", aprender: "mais/aprender", relatorios: "mais/relatorios", conta: "mais", "para-voce": "mais/aprender", calendario: "proventos", recebimentos: "proventos", tutoriais: "mais" };
 
   // ---------- helpers visuais (mesmo padrão do site) ----------
-  const fmtY = (v, eixo) => (U.state.hide ? (eixo ? "•••" : "R$ ••••") : eixo ? (Math.abs(v) >= 1e6 ? U.num(v / 1e6, 1) + " mi" : Math.abs(v) >= 1e3 ? U.num(v / 1e3, 0) + " mil" : U.num(v, 0)) : U.brl(v));
+  const fmtY = (v, eixo) => (U.state.hide ? (eixo ? "•••" : "R$ ••••") : eixo ? U.compacto(v) : U.brl(v));
   const fmtPctY = (v, eixo) => (eixo ? U.num(v, 0) + "%" : (v >= 0 ? "+" : "") + U.num(v, 2) + "%");
   const cor = (x) => (x.tipo === "cripto" ? (CR.MOEDAS[x.cod] || {}).cor || "#f7931a" : K.CORES[x.classe] || "#06377b");
   const temLogo = (x) => x.tipo === "b3" && x.classe !== "Tesouro Direto";
@@ -131,7 +131,7 @@
       const aba = params[0] || "ativos";
       document.querySelectorAll("[data-cab]").forEach((b) => (b.onclick = () => go("#/carteira/" + b.dataset.cab)));
       document.querySelectorAll("[data-rf]").forEach((b) => (b.onclick = () => { U.store.set("rf:modo", b.dataset.rf); render(); }));
-      if (aba === "distribuicao") CH.rosca($("#dCl"), K.porClasse(id), { centro: U.state.hide ? "•••" : U.num(K.itens(id).reduce((a, x) => a + x.valor, 0) / 1000, 0) + " mil", sub: "total" });
+      if (aba === "distribuicao") CH.rosca($("#dCl"), K.porClasse(id), { centro: U.state.hide ? "•••" : U.compacto(K.itens(id).reduce((a, x) => a + x.valor, 0)), sub: "total em R$" });
       if (aba === "rentabilidade") {
         const sel = U.store.get("rent:idx2", ["cdi", "ibov", "usd"]).filter((k) => RT.INDICES[k]), datas = r.rent.map((x) => x[0]);
         CH.linha($("#chRent"), { series: [{ nome: "Sua carteira", cor: "#06377b", pontos: r.rent }, { nome: "+ proventos", cor: "#137a43", pontos: r.rentProv }].concat(sel.map((k) => ({ nome: RT.INDICES[k].nome, cor: RT.INDICES[k].cor, pontos: RT.acumulado(k, datas), tracejado: true }))), fmtY: fmtPctY, fmtX: (d, l) => (l ? U.data(d) : U.mesAno(d)), altura: 220 });
