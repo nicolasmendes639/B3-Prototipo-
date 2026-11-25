@@ -1,0 +1,163 @@
+/* Casca de aplicativo. As cores, cartões, gráficos e componentes vêm do site (../css/styles.css). */
+body.app { background: #dfe6f1; margin: 0; overscroll-behavior: none; }
+.phone { position: relative; max-width: 480px; min-height: 100vh; margin: 0 auto; background: #f3f6fb; box-shadow: 0 0 60px rgba(6, 55, 123, .15); display: flex; flex-direction: column; }
+@media (min-width: 560px) { body.app { padding: 18px 0; } .phone { min-height: calc(100vh - 36px); border-radius: 28px; overflow: hidden; } }
+
+/* topo */
+.ap-top { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 10px; padding: calc(10px + env(safe-area-inset-top)) 14px 10px; background: rgba(243, 246, 251, .92); backdrop-filter: blur(12px); }
+.ap-top:empty { display: none; }
+.ap-logo { width: 34px; height: 34px; }
+.ap-h1 { flex: 1; font-size: 21px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ap-ib { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: #fff; display: grid; place-items: center; color: var(--ink-2); cursor: pointer; position: relative; text-decoration: none; flex: none; }
+.ap-ib[aria-pressed="true"] { color: var(--b3); background: var(--b3-50); }
+.ap-ib .badge { position: absolute; top: -4px; right: -4px; }
+.ap-ib-sp { width: 40px; flex: none; }
+
+/* conteúdo */
+.ap-tela { flex: 1; outline: none; }
+.ap-conteudo { padding: 4px 14px calc(110px + env(safe-area-inset-bottom)); }
+body.ap-sem-abas .ap-conteudo { padding: 0; }
+.ap-sec { margin-top: 22px; }
+.ap-sec-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 2px 10px; }
+.ap-sec-h h2 { font-size: 18.5px; margin: 0; }
+.ap-sec-h a { font-size: 15px; font-weight: 600; text-decoration: none; }
+.ap-card { padding: 8px 14px; border-radius: 18px; }
+.ap-nota { text-align: center; margin: 14px 8px 0; }
+.ap-full { width: 100%; justify-content: center; margin-top: 12px; height: 50px; }
+
+/* hero do Início (mesmo do site, mais compacto) */
+.ap-hero { border-radius: 22px; padding: 20px 18px 16px; }
+.ap-hero .saldo { font-size: 34px; }
+.ap-hero .ganho { font-size: 17px; padding: 8px 12px; }
+.ap-hero .hero-sub { margin-top: 6px; }
+.ap-seg { display: flex; width: 100%; margin-top: 12px; }
+.ap-seg button { flex: 1; }
+.hero .ap-seg { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .2); }
+
+/* atalhos */
+.ap-acoes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+.ap-acoes a, .ap-acoes button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 4px; border-radius: 16px; background: #fff; border: 1px solid var(--line); text-decoration: none; color: var(--ink); font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.ap-acoes span { width: 42px; height: 42px; border-radius: 14px; background: var(--b3-50); display: grid; place-items: center; font-size: 20px; color: var(--b3); }
+
+/* linhas de lista */
+.ap-row { display: flex; align-items: center; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); }
+.ap-row:last-child { border-bottom: 0; }
+.ap-row .lg { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; font-size: 12px; color: #fff; flex: none; position: relative; overflow: hidden; }
+.ap-row .lg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #fff; }
+.ap-row .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ap-row .grow b { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ap-row .grow span { font-size: 13.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ap-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; font-variant-numeric: tabular-nums; flex: none; }
+.ap-right b { font-size: 15.5px; }
+.ap-right > span { font-size: 13px; color: var(--muted); }
+.ap-right svg { color: var(--muted); }
+.ap-btnrow { width: 100%; background: none; border: 0; border-bottom: 1px solid var(--line); font: inherit; cursor: pointer; text-align: left; }
+.ap-card .ap-btnrow:last-child { border-bottom: 0; }
+
+.ap-donut { display: flex; align-items: center; gap: 14px; padding: 6px 0 10px; border-bottom: 1px solid var(--line); }
+.ap-donut > div:first-child { flex: none; transform: scale(.82); transform-origin: left center; width: 150px; }
+.ap-donut .legend-big { flex: 1; gap: 6px; }
+.ap-donut .legend-big .row { font-size: 14.5px; }
+.ap-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+.ap-duo .alert { margin: 0; padding: 10px 12px; }
+.ap-duo .alert p { margin: 2px 0 0; }
+.ap-kpi { display: flex; flex-direction: column; gap: 4px; padding: 14px; border-radius: 18px; }
+.ap-kpi span { font-size: 13.5px; color: var(--ink-2); font-weight: 600; }
+.ap-kpi b { font-size: 21px; font-variant-numeric: tabular-nums; }
+.ap-kpi small { color: var(--muted); font-size: 12.5px; }
+.ap-kpis { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 10px 0 6px; border-top: 1px solid var(--line); margin-top: 8px; }
+.ap-kpis > div { display: flex; flex-direction: column; font-size: 13.5px; }
+.ap-kpis span { color: var(--muted); display: flex; align-items: center; gap: 5px; }
+.ap-kpis i { width: 10px; height: 4px; border-radius: 2px; display: inline-block; }
+.ap-idx { margin: 6px 0 8px; flex-wrap: wrap; }
+.ap-rfmodo { display: flex; align-items: center; gap: 10px; margin: 14px 2px 0; }
+.ap-rfmodo .ap-seg { margin: 0; flex: 1; }
+.ap-ix { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ap-ixc { padding: 12px; border-radius: 16px; display: flex; flex-direction: column; gap: 2px; }
+.ap-ixc span { font-size: 13px; color: var(--muted); font-weight: 700; }
+.ap-ixc b { font-size: 18px; font-variant-numeric: tabular-nums; }
+.ap-sec-h .ap-seg { width: auto; margin: 0; }
+.ap-sec-h .ap-seg button { padding: 6px 10px; font-size: 13.5px; }
+
+/* detalhe do ativo */
+.ap-ativo-h { display: flex; align-items: center; gap: 12px; margin: 6px 0 4px; }
+.ap-ativo-h .lg { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; font-size: 12px; color: #fff; position: relative; overflow: hidden; }
+.ap-ativo-h .lg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #fff; }
+.ap-ativo-h div:last-child { display: flex; flex-direction: column; }
+.ap-ativo-h span { color: var(--muted); font-size: 14px; }
+.ap-preco { display: flex; align-items: baseline; gap: 10px; margin: 8px 2px 14px; }
+.ap-preco b { font-size: 32px; font-variant-numeric: tabular-nums; }
+.ap-tv { height: 300px; border: 0; }
+.ap-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px 0; }
+.ap-grid2 > div, .ap-grid3 > div { display: flex; flex-direction: column; gap: 2px; }
+.ap-grid2 span, .ap-grid3 span { font-size: 13px; color: var(--muted); }
+.ap-grid2 b { font-size: 17px; }
+.ap-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 14px; }
+
+/* Mais */
+.ap-perfil { display: flex; align-items: center; gap: 12px; padding: 14px; margin-top: 6px; }
+.ap-perfil .lvl, .ap-card.xp .lvl { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 26px; color: #fff; flex: none; }
+.ap-perfil h2 { margin: 0; }
+.ap-perfil .grow { flex: 1; }
+.ap-card.xp { margin-top: 6px; padding: 14px; }
+.ap-videos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.ap-videos .vthumb { font-size: 44px; }
+.ap-videos .vthumb .play { width: 38px; height: 38px; font-size: 14px; }
+.ap-videos .vbody { padding: 10px 12px 12px; }
+.ap-videos .vbody b { font-size: 15px; }
+.ap-switch { width: 50px; height: 30px; border-radius: 99px; border: 0; background: #cfd8e6; position: relative; cursor: pointer; }
+.ap-switch i { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: .2s; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); }
+.ap-switch[aria-pressed="true"] { background: var(--b3); }
+.ap-switch[aria-pressed="true"] i { left: 23px; }
+
+/* abas inferiores */
+.ap-tabs { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 60; display: grid; grid-template-columns: repeat(5, 1fr); background: rgba(255, 255, 255, .96); backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding: 6px 4px calc(8px + env(safe-area-inset-bottom)); }
+.ap-tabs a { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; color: var(--muted); font-size: 12px; font-weight: 600; padding: 6px 0; border-radius: 12px; }
+.ap-tabs a.on { color: var(--b3); }
+.ap-tabs a.on svg { background: var(--b3-50); border-radius: 10px; padding: 3px 10px; width: 44px; height: 30px; box-sizing: border-box; }
+body.ap-sem-abas .ap-tabs, body.ap-login-on .ai-fab { display: none; }
+@media (min-width: 560px) { .ap-tabs { bottom: 18px; border-radius: 0 0 28px 28px; } }
+
+/* assistente: botão menor, acima das abas; painel como gaveta */
+body.app .ai-fab { right: max(16px, calc(50% - 240px + 16px)); bottom: calc(84px + env(safe-area-inset-bottom)); height: 54px; padding: 0 14px; }
+body.app .ai-fab .lbl { display: none; }
+body.app .ai-panel { top: auto; left: 50%; right: auto; width: min(100%, 480px); transform: translate(-50%, 110%); bottom: 0; height: 78vh; border-radius: 22px 22px 0 0; }
+body.app.chat-open .ai-panel { transform: translate(-50%, 0); }
+body.app.chat-open main { margin-right: 0; }
+
+/* folha inferior */
+.ap-sheet-bg { position: fixed; inset: 0; background: rgba(8, 18, 40, .45); z-index: 80; opacity: 0; transition: opacity .2s; }
+.ap-sheet-bg.on { opacity: 1; }
+.ap-sheet { position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 100%); width: min(100%, 480px); z-index: 81; background: #fff; border-radius: 22px 22px 0 0; padding: 10px 18px calc(22px + env(safe-area-inset-bottom)); transition: transform .22s ease; }
+.ap-sheet.on { transform: translate(-50%, 0); }
+.ap-grab { width: 40px; height: 5px; border-radius: 99px; background: #d5dbe5; margin: 0 auto 14px; }
+.ap-field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; margin: 12px 0; }
+.ap-field input { height: 50px; border: 1px solid var(--line); border-radius: 14px; padding: 0 14px; font: inherit; font-size: 17px; }
+
+/* entrada */
+body.ap-login-on .phone { background: radial-gradient(120% 90% at 100% 0%, #1a6fd6 0%, #0b56b8 40%, #06377b 85%); }
+.ap-login { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 40px 28px; color: #fff; text-align: center; }
+.ap-login-logo { width: 96px; height: 96px; background: #fff; border-radius: 26px; padding: 12px; box-shadow: 0 16px 40px rgba(0, 0, 0, .25); }
+.ap-login h1 { color: #fff; font-size: 28px; margin: 10px 0 0; }
+.ap-login p { color: #cfe0fb; margin: 0; }
+.ap-login .muted { color: #9fbbe6 !important; margin-top: 18px; }
+.ap-faceid { margin-top: 26px; display: flex; flex-direction: column; align-items: center; gap: 12px; background: none; border: 0; color: #fff; cursor: pointer; font: inherit; font-size: 17px; }
+.ap-face { width: 96px; height: 96px; border-radius: 28px; background: rgba(255, 255, 255, .12); border: 1.5px solid rgba(255, 255, 255, .3); display: grid; place-items: center; }
+.ap-faceid.lendo .ap-face { animation: scan .9s ease; border-color: #8ff0b5; color: #8ff0b5; }
+@keyframes scan { 50% { transform: scale(.92); box-shadow: 0 0 0 10px rgba(143, 240, 181, .2); } }
+.ap-cpf { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .3); color: #fff; width: 100%; max-width: 300px; justify-content: center; height: 50px; }
+
+/* o questionário do site dentro do app */
+body.app .quiz, body.app .page-head { max-width: none; }
+body.app .page-head h1 { font-size: 22px; }
+body.app .grid.g2 { grid-template-columns: 1fr; }
+body.app .player-wrap { padding: 10px; }
+
+/* ajustes de encaixe em telas estreitas */
+.ap-seg { flex-wrap: nowrap; }
+.ap-seg button { padding: 8px 4px; font-size: 14.5px; white-space: nowrap; min-width: 0; }
+.ap-rfmodo .ap-seg button { padding: 7px 8px; }
+.ap-donut > div:first-child { width: 128px; transform: scale(.72); margin-right: -22px; }
+.ap-donut .legend-big { min-width: 0; }
+.ap-donut .legend-big .row { font-size: 14px; gap: 8px; }
+.ap-donut .legend-big .row b { white-space: nowrap; padding-left: 6px; }
