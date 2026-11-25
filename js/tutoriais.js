@@ -8,7 +8,7 @@
   // ======================================================================
   const TUTORIAIS = [
     { id: "primeiros-passos", cat: "Começando", ic: "🧭", titulo: "Primeiros passos na Área do Investidor", desc: "As 7 abas, a busca, ocultar valores e a assistente de IA.", passos: [
-      { rota: "inicio", sel: ".tabs-main, .bottom-nav", titulo: "Seis abas, tudo à mão", texto: "Início, Carteira, Proventos, Mercado, Aprender e Relatórios. No celular, elas ficam na barra de baixo." },
+      { rota: "inicio", sel: ".tabs-main, .bottom-nav", titulo: "Sete abas, tudo à mão", texto: "Início, Carteira, Proventos, Mercado, Aprender, Relatórios e Meu Perfil de Investidor. No celular, elas ficam na barra de baixo." },
       { rota: "inicio", sel: ".hero", titulo: "Seu resumo", texto: "O saldo total de todas as suas contas e quanto você ganhou ou perdeu no período escolhido." },
       { rota: "inicio", sel: "#searchBtn", titulo: "Busca", texto: "Encontre qualquer ação, FII, ETF (inclusive ETFs de Criptomoedas) ou página. Atalho: tecla /." },
       { rota: "inicio", sel: "#hideBtn", titulo: "Ocultar valores", texto: "Esconde todos os valores em reais, em todas as telas, até você desligar." },
@@ -255,4 +255,5 @@
   };
 
   window.TUTORIAIS = TUTORIAIS;
+  window.FAQ_B3 = FAQ;
 })(window.VIEWS);
