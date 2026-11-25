@@ -24,7 +24,7 @@ window.VIEWS = window.VIEWS || {};
   // ---------- Tabela de ativos (Carteira → Todos os investimentos) ----------
   // Preço médio, data de entrada e proventos vêm de RENT.posicao (simulados, estáveis por investidor e ativo)
   const GRUPOS_RV = [["Ações", (x) => x.tipo === "b3" && x.sub === "Acoes"], ["FIIs", (x) => x.tipo === "b3" && x.sub === "FII"], ["ETFs", (x) => x.tipo === "b3" && x.sub === "ETF"], ["ETFs de Criptomoedas", (x) => x.tipo === "cripto"]];
-  const COLS = [["Ativo"], ["Preço médio", 1], ["Preço atual", 1], ["Quant.", 1], ["Patr. atual", 1], ["Var. hoje", 1], ["Var. total", 1, "Só a variação do preço desde a compra (preço atual ÷ preço médio)."], ["Proventos", 1, "Dividendos, JCP e rendimentos já pagos desde que você tem o ativo (data-com a partir da compra)."], ["Rent. c/ proventos", 1, "Variação do preço + proventos recebidos, sobre o preço médio. Ex.: subiu 10% e pagou 10% em proventos = 20%."], ["% na cart.", 1]];
+  const COLS = [["Ativo"], ["Preço médio", 1], ["Preço atual", 1], ["Quant.", 1], ["Patr. atual", 1], ["Var. hoje", 1], ["Var. total", 1, "Só a variação do preço desde a compra (preço atual ÷ preço médio)."], ["Rent. c/ proventos", 1, "Variação do preço + proventos recebidos (dividendos, JCP e rendimentos), sobre o preço médio. Ex.: subiu 10% e pagou 10% em proventos = 20%. Passe o mouse no valor para ver os proventos."], ["% na cart.", 1]];
   const preco = (v) => "R$ " + U.num(v, 2);
   const duo = (topo, v) => `${topo}<small>${U.sinal(v)}</small>`;
   const naoDistribui = '<span class="muted">—</span><small class="muted">não distribui</small>';
@@ -41,12 +41,13 @@ window.VIEWS = window.VIEWS || {};
     const linhas = ls.map((l) => {
       const { x, rp } = l, tk = U.esc(x.cod);
       const menu = `<details class="acao"><summary aria-label="Opções para ${tk}">⋮</summary><div class="acao-menu">${x.tipo === "b3" ? `<a href="#/ativo/${U.slug(x.cod)}">Ver ficha do ativo</a>` : ""}<a href="#/mercado/meus/${U.slug(x.cod)}">Ver gráfico</a><button type="button" data-ask="Como está meu investimento em ${tk}?">✦ Perguntar à IA</button></div></details>`;
-      const ord = [x.cod, rp.pm, rp.preco, x.q, x.valor, l.hoje, l.tot, rp.provR, rp.distribui ? rp.total : -1e9, x.pct];
+      const ord = [x.cod, rp.pm, rp.preco, x.q, x.valor, l.hoje, l.tot, rp.distribui ? rp.total : -1e9, x.pct];
+      // proventos recebidos aparecem num popup ao passar o mouse (ou focar) na rentabilidade c/ proventos
+      const prov = `data-prov="${tk}" data-prov-un="${x.sub === "Acoes" ? "ação" : "cota"}" data-prov-r="${rp.provR}" data-prov-cota="${rp.provCota}" data-prov-pct="${rp.provPct}" data-prov-n="${rp.nProv}" data-prov-preco="${rp.preco}" data-prov-total="${rp.total}" data-prov-desde="${rp.entrada || ""}"`;
       return `<tr data-ord='${JSON.stringify(ord)}'><td><a class="tk-cell" href="${hrefItem(x)}" data-emp="${tk}">${logo(x, true)}<b>${tk}</b></a></td>
         <td class="num">${preco(rp.pm)}${rp.entrada ? `<small class="muted">desde ${U.data(rp.entrada)}</small>` : ""}</td><td class="num">${duo(preco(x.preco), rp.preco)}</td><td class="num">${U.qtd(x.q)}</td><td class="num">${U.brl(x.valor)}</td>
         <td class="num">${duo(U.brl(l.hoje), l.dia)}</td><td class="num">${duo(U.brl(l.tot), rp.preco)}</td>
-        <td class="num">${rp.distribui ? `${U.brl(rp.provR)}<small class="muted">${U.num(rp.provPct, 2)}% do preço médio</small>` : naoDistribui}</td>
-        <td class="num rent-prov">${rp.distribui ? duo(U.brl(l.tot + rp.provR), rp.total) : naoDistribui}</td><td class="num">${U.num(x.pct, 2)}%</td><td>${menu}</td></tr>`;
+        <td class="num rent-prov">${rp.distribui ? `<span class="prov-alvo" tabindex="0" ${prov}>${duo(U.brl(l.tot + rp.provR), rp.total)}</span>` : naoDistribui}</td><td class="num">${U.num(x.pct, 2)}%</td><td>${menu}</td></tr>`;
     }).join("");
     return `<section class="card section"><div class="grp-h">
         <div class="grp-t"><h2>${titulo}</h2><span class="muted">${g.length} ${g.length === 1 ? "ativo" : "ativos"}</span></div>

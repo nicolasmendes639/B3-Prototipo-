@@ -633,6 +633,11 @@ body.chat-open .ai-panel { transform: none; }
 .emp-pop .emp-tk { display: block; font-size: 16px; font-weight: 700; color: var(--ink-2); margin-bottom: 4px; }
 .emp-pop b { display: block; font-size: 23px; }
 .emp-pop .emp-det { display: block; font-size: 18px; margin-top: 2px; }
+.emp-pop .emp-conta { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; font-size: 18px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.emp-pop .emp-conta > :nth-child(even) { text-align: right; }
+.emp-pop .emp-conta b { display: block; font-size: 18px; }
+.prov-alvo { display: inline-block; cursor: help; border-bottom: 1px dashed currentColor; border-radius: 2px; }
+.prov-alvo:focus-visible { outline: 2px solid var(--b3); outline-offset: 2px; }
 
 /* ---------- Tabela de ativos por classe ---------- */
 .grp-h { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; margin-bottom: 12px; }

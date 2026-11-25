@@ -151,18 +151,26 @@
   }
   let tip = null, tipAlvo = null;
   function escondeEmp() { if (tip) tip.remove(); if (tipAlvo) tipAlvo.removeAttribute("aria-describedby"); tip = tipAlvo = null; }
+  // Proventos recebidos desde a compra (Carteira → Todos os investimentos, coluna Rent. c/ proventos)
+  function provHtml(d) {
+    const n = +d.provN, desde = d.provDesde ? ` desde ${U.data(d.provDesde)}` : "";
+    return `<span class="emp-tk">${U.esc(d.prov)} · Proventos recebidos${desde}</span><b>${U.brl(+d.provR)}</b>
+      <span class="emp-det">${n} ${n === 1 ? "pagamento" : "pagamentos"} · R$ ${U.num(+d.provCota, 2)} por ${U.esc(d.provUn)}</span>
+      <span class="emp-det">${U.num(+d.provPct, 2)}% do preço médio</span>
+      <span class="emp-conta"><span>Variação do preço</span>${U.sinal(+d.provPreco)}<span>+ Proventos</span>${U.sinal(+d.provPct)}<b>= Rentabilidade total</b><b>${U.sinal(+d.provTotal)}</b></span>`;
+  }
   function mostraEmp(el) {
     if (el === tipAlvo) return;
-    const e = empresa(el.dataset.emp); escondeEmp(); if (!e) return;
+    const e = el.dataset.prov ? null : empresa(el.dataset.emp); escondeEmp(); if (!e && !el.dataset.prov) return;
     tipAlvo = el; el.setAttribute("aria-describedby", "empPop");
     tip = document.createElement("div"); tip.className = "emp-pop"; tip.id = "empPop"; tip.setAttribute("role", "tooltip");
-    tip.innerHTML = `<span class="emp-tk">${U.esc(el.dataset.emp)} · ${U.esc(e.tipo)}</span><b>${U.esc(e.nome)}</b><span class="emp-det">${U.esc(e.det)}</span>`;
+    tip.innerHTML = e ? `<span class="emp-tk">${U.esc(el.dataset.emp)} · ${U.esc(e.tipo)}</span><b>${U.esc(e.nome)}</b><span class="emp-det">${U.esc(e.det)}</span>` : provHtml(el.dataset);
     document.body.appendChild(tip);
     const r = el.getBoundingClientRect(), cabe = r.bottom + 10 + tip.offsetHeight < innerHeight;
     tip.style.top = scrollY + (cabe ? r.bottom + 10 : r.top - 10 - tip.offsetHeight) + "px";
     tip.style.left = Math.max(8, Math.min(scrollX + r.left, scrollX + document.documentElement.clientWidth - tip.offsetWidth - 8)) + "px";
   }
-  const alvoEmp = (e) => { const el = e.target.closest && e.target.closest("[data-emp]"); el ? mostraEmp(el) : escondeEmp(); };
+  const alvoEmp = (e) => { const el = e.target.closest && e.target.closest("[data-emp],[data-prov]"); el ? mostraEmp(el) : escondeEmp(); };
   document.addEventListener("mouseover", alvoEmp);
   document.addEventListener("focusin", alvoEmp);
   addEventListener("scroll", escondeEmp, { passive: true });

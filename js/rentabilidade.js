@@ -39,9 +39,10 @@ window.RENT = (function () {
     const s = M.cotacoes[x.cod].serie, ini = Math.floor(((h % 80) / 100) * s.length);
     const pm = (s.slice(ini).reduce((a, p) => a + p[1], 0) / (s.length - ini)) * (1 + (((h >> 3) % 9) - 4) / 100);
     const entrada = s[ini][0];
-    const provCota = provs(x.cod).filter((p) => p.dataCom >= entrada && p.pagamento <= M.BASE).reduce((a, p) => a + p.valor, 0);
+    const pagos = provs(x.cod).filter((p) => p.dataCom >= entrada && p.pagamento <= M.BASE);
+    const provCota = pagos.reduce((a, p) => a + p.valor, 0);
     const preco = (x.preco / pm - 1) * 100, provPct = (provCota / pm) * 100;
-    return { pm, entrada, preco, provCota, provR: provCota * x.q, provPct, total: preco + provPct, distribui: distribui(x.cod) };
+    return { pm, entrada, preco, provCota, provR: provCota * x.q, provPct, nProv: pagos.length, total: preco + provPct, distribui: distribui(x.cod) };
   }
 
   // Proventos (R$) recebidos nos últimos n pregões por uma posição de q cotas
