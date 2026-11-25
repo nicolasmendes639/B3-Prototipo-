@@ -15,7 +15,7 @@ Protótipo navegável de uma nova **Área do Investidor da B3**. Ele junta em um
 | Aba | O que tem |
 |---|---|
 | **Início** | Saldo total e quanto a carteira **ganhou ou perdeu nos últimos 30 dias**, em R$ e % (também 7D, 6M, 12M, 24M e “Desde o começo”). Logo abaixo vêm a carteira em gráfico de pizza, o que mais pesou no resultado e os próximos recebimentos. |
-| **Carteira** | Distribuição por classe, conta e tipo; rentabilidade × CDI, Ibovespa, Dólar e outros índices; todos os investimentos; entradas e saídas. |
+| **Carteira** | Distribuição por classe, conta e tipo, e gráfico multinível por setor e segmento (classe → setor → ativo, com zoom ao clicar); rentabilidade × CDI, Ibovespa, Dólar e outros índices; todos os investimentos; entradas e saídas. |
 | **Proventos** | Extrato completo: totais (recebido, provisionado, 6/12/24 meses), gráfico com agrupamento, data base, visão e período, proventos por categoria, rendimento mês a mês (R$, YoC ou DY), ativos por categoria, lista de pagamentos com filtros e proventos futuros (provisionado e data com futura). Também calendário visual e assembleias. |
 | **Mercado** | Gráficos **reais** dos índices e dos ativos do investidor (inclusive ETFs de Criptomoedas); destaques; acompanhamento e alertas; comparador; ofertas. |
 | **Aprender** | 8 vídeos animados de cerca de 1 minuto para iniciantes, com quiz e XP; glossário; feed por perfil; tutoriais guiados. |
@@ -46,6 +46,7 @@ css/styles.css        cores, fontes e componentes
 js/app.js             abas, rotas, busca, menu da conta
 js/views-inicio.js    Início, Carteira e Proventos
 js/views-proventos.js Proventos → Resumo (extrato detalhado)
+js/views-setores.js   Carteira → Distribuição: por setor e segmento (gráfico multinível)
 js/views-mercado.js   Mercado, ficha do ativo, acompanhamento, comparador
 js/views-aprender.js  Aprender (vídeos, glossário, feed)
 js/views-perfil.js    feed “Para você” e Meu Perfil de Investidor (questionário)

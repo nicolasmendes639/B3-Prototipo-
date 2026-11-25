@@ -783,3 +783,34 @@ span.pos { display: inline; padding: 0; border-radius: 0; color: var(--pos); }
   .pos.mov { grid-template-columns: 46px 1fr; }
   .pos.mov .vl { grid-column: 1 / -1; justify-content: space-between; }
 }
+
+.seg .info, .seg button.info { align-self: center; width: 18px; height: 18px; padding: 0; margin: 0 6px 0 -2px; border: 1px solid #b8c4d6; border-radius: 50%; background: #fff; font-size: 13px; line-height: 16px; color: var(--muted); }
+
+/* ===== Carteira → Distribuição: por setor e segmento (gráfico multinível) ===== */
+.mn-grid { display: grid; grid-template-columns: minmax(280px, 440px) 1fr; gap: 28px; align-items: start; }
+.mn-grid > div { min-width: 0; }
+.mn { position: relative; }
+.mn-f { stroke: var(--card, #fff); stroke-width: 1.2; transition: opacity .15s; }
+.mn svg:hover .mn-f { opacity: .8; }
+.mn svg .mn-f:hover, .mn-f:focus { opacity: 1; outline: none; stroke: #14213d; stroke-width: 2; }
+.mn-f.zoom { cursor: pointer; }
+.mn-t { font-family: Arial, Helvetica, sans-serif; font-weight: 700; pointer-events: none; }
+.mn-c.volta { cursor: pointer; }
+.mn-c.volta:hover circle, .mn-c.volta:focus circle { fill: var(--b3-50); }
+.mn-c:focus { outline: none; }
+.mn-v { font-size: 14px; font-weight: 700; fill: var(--b3); }
+.mn-tip { position: absolute; z-index: 5; pointer-events: none; background: #fff; color: var(--ink); border: 2px solid var(--b3); border-radius: 12px; padding: 10px 14px; box-shadow: 0 10px 28px rgba(16, 32, 64, .2); font-family: Arial, Helvetica, sans-serif; display: flex; flex-direction: column; gap: 2px; max-width: 280px; }
+.mn-tip[hidden] { display: none; }
+.mn-tip b { font-size: 18px; }
+.mn-tip span { font-size: 16px; }
+.mn-tip .small { font-size: 13.5px; color: var(--muted); }
+.mn-leg { font-variant-numeric: tabular-nums; }
+.mn-leg td, .mn-leg th { padding: 7px 8px; font-size: 15px; }
+.mn-leg tr.mn-h td { font-weight: 700; background: var(--bg); }
+.mn-leg i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 8px; vertical-align: -1px; flex: none; }
+.mn-go { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; text-align: left; }
+button.mn-go:hover { color: var(--b3); text-decoration: underline; }
+.mn-sub { display: inline-flex; align-items: center; padding-left: 18px; }
+.mn-path { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; color: var(--muted); }
+@media (max-width: 900px) { .mn-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .mn-leg td, .mn-leg th { padding: 6px 4px; font-size: 14px; } .mn-sub { padding-left: 8px; } .mn-leg i { margin-right: 6px; } }

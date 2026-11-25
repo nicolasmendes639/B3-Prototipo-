@@ -10,7 +10,8 @@
   const corCat = (c) => P.CORES_CAT[c] || "#888";
   const ativoCel = (tk) => `<a class="tk-cell" href="#/ativo/${U.slug(tk)}" data-emp="${U.esc(tk)}">${V._logo({ tipo: "b3", classe: "Renda variavel", cod: tk }, true)}<b>${U.esc(tk)}</b></a>`;
   const catCel = (c) => `<span class="cat-tag" style="--c:${corCat(c)}">${c}</span>`;
-  const seg = (k, opcoes, atual, rotulo) => `<div class="seg" role="group" aria-label="${rotulo}">${opcoes.map(([v, t]) => `<button type="button" data-k="${k}" data-v="${v}" aria-pressed="${String(v) === String(atual)}">${t}</button>`).join("")}</div>`;
+  // opção com 3º item = texto do botão (i) que explica a opção
+  const seg = (k, opcoes, atual, rotulo) => `<div class="seg" role="group" aria-label="${rotulo}">${opcoes.map(([v, t, info]) => `<button type="button" data-k="${k}" data-v="${v}" aria-pressed="${String(v) === String(atual)}">${t}</button>${info ? U.info(info, t) : ""}`).join("")}</div>`;
   const sel = (k, rotulo, opcoes, atual) => `<label class="fld">${rotulo}<select data-k="${k}">${opcoes.map(([v, t]) => `<option value="${U.esc(v)}" ${String(v) === String(atual) ? "selected" : ""}>${U.esc(t)}</option>`).join("")}</select></label>`;
   const soma = (ls) => ls.reduce((a, l) => a + l.liq, 0);
   const pct = (v) => U.num(v, 2) + "%";
@@ -188,7 +189,7 @@
           <h3 class="sec-mini">Proventos por categoria ${U.info("Quanto cada categoria pagou no período escolhido acima.")}</h3><div id="provCat"></div></section>
 
         <section class="card section"><div class="card-h"><div><h2>Rendimento mês a mês</h2><div class="sub">Quanto caiu na sua conta em cada mês</div></div>
-          <div class="prov-fil">${seg("mm", [["12", "Últ. 12M"], ["anos", "Ano a ano"], ["ambos", "Ambos"]], st("mm", "ambos"), "Tabelas")}${seg("mmv", [["total", "Total e média"], ["yoc", "YoC"], ["dy", "DY"]], st("mmv", "total"), "Mostrar em")}${sel("mmc", "Mostrar", cats.map((c) => [c, c]), st("mmc", "Carteira"))}</div></div>
+          <div class="prov-fil">${seg("mm", [["12", "Últ. 12M"], ["anos", "Ano a ano"], ["ambos", "Ambos"]], st("mm", "ambos"), "Tabelas")}${seg("mmv", [["total", "Total e média"], ["yoc", "YoC", "Yield on cost (YoC): quanto os proventos rendem sobre o que você PAGOU pelos ativos. Ex.: comprou por R$ 1.000 e recebeu R$ 10 no mês = 1% de YoC no mês."], ["dy", "DY", "Dividend yield (DY): quanto os proventos rendem sobre o valor ATUAL dos ativos. Ex.: seus ativos valem hoje R$ 2.000 e você recebeu R$ 10 no mês = 0,5% de DY no mês."]], st("mmv", "total"), "Mostrar em")}${sel("mmc", "Mostrar", cats.map((c) => [c, c]), st("mmc", "Carteira"))}</div></div>
           <div id="provMM"></div></section>
 
         <section class="card section"><div class="card-h"><div><h2>Ativos por categoria</h2><div class="sub">Quanto cada ativo pagou, com DY e yield on cost</div></div>${seg("atp", [["6", "Últ. 6M"], ["12", "Últ. 12M"], ["24", "Últ. 24M"], ["prov", "Provisionado"]], st("atp", "12"), "Período")}</div>

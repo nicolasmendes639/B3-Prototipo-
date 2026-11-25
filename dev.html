@@ -81,6 +81,7 @@ js/cripto.js          CRIPTO (ETFs de Criptomoedas da B3) + CONSOL (consolidaç�
 js/rentabilidade.js   RENT: rentabilidade com/sem proventos e índices de referência
 js/proventos.js       PROV: lançamentos de proventos (pago, provisionado, data com futura)
 js/views-proventos.js Proventos → Resumo
+js/views-setores.js   Carteira → por setor e segmento
 js/feed.js            pontuação do feed e do perfil
 js/views-*.js         telas · js/videos.js player · js/chat.js assistente
 js/tutoriais.js       boas-vindas, tutoriais e motor de tour guiado
@@ -104,7 +105,7 @@ python3 scripts/build_data.py</code></pre>
       <section class="blk" id="telas"><h2>Telas e rotas</h2>
         <div class="tbl-wrap"><table><thead><tr><th>Rota</th><th>Conteúdo</th><th>Componentes-chave</th></tr></thead><tbody>
           <tr><td><code>#/inicio</code></td><td>Saldo total, ganho/perda no período (7D/30D/6M/12M/24M/Desde o começo) em R$ e %, carteira em pizza + maiores investimentos, contribuição por ativo, próximos proventos</td><td>Hero, LineChart, Donut, PositionList, DivergingBars</td></tr>
-          <tr><td><code>#/carteira[/rentabilidade|ativos|movimentacoes]</code></td><td>Distribuição por classe/conta/tipo; rentabilidade × CDI × Ibovespa; todos os investimentos; fluxo de entradas/saídas</td><td>Donut, Bars, LineChart, Sparkline</td></tr>
+          <tr><td><code>#/carteira[/rentabilidade|ativos|movimentacoes]</code></td><td>Distribuição por classe/conta/tipo e por setor/segmento (anéis classe → setor → ativo, zoom ao clicar; setor das ações pela classificação setorial da B3); rentabilidade × CDI × Ibovespa; todos os investimentos; fluxo de entradas/saídas</td><td>Donut, Sunburst (CH.multinivel), Bars, LineChart, Sparkline</td></tr>
           <tr><td><code>#/proventos[/calendario|assembleias]</code></td><td>Totais; gráfico (mensal/trimestral/semestral/anual, por pagamento ou data com, completo/categoria/segmento/ativo); rendimento mês a mês (R$/YoC/DY); ativos por categoria; lista com busca, corretora, período e agrupamento; proventos futuros; calendário mensal; voto a distância</td><td>StackedBars, Donut, SortableTable, CalendarGrid, VoteForm</td></tr>
           <tr><td><code>#/mercado[/meus|destaques|acompanhar|comparar|ofertas]</code></td><td>Índices ao vivo, gráfico real dos ativos do investidor (inclusive ETFs de Criptomoedas), rankings, watchlist + alertas, comparador, ofertas</td><td>TradingView widgets, Picker, Watchlist</td></tr>
           <tr><td><code>#/ativo/:ticker</code></td><td>Ficha: preço, gráfico ao vivo, indicadores explicados, proventos, conteúdos relacionados</td><td>AssetHeader, IndicatorGrid</td></tr>

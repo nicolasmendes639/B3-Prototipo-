@@ -190,6 +190,7 @@ window.VIEWS = window.VIEWS || {};
           <section class="card"><div class="card-h"><div><h2>Por conta</h2><div class="sub">Corretoras e bancos conectados</div></div><a class="small" href="#/conta/contas">Gerenciar</a></div>
             ${inst.map((i) => `<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px;gap:8px"><span><b>${i.nome}</b> <span class="small muted">${i.tipo}</span> ${i.nome === r.pendInst ? '<span class="chip warn">aguardando</span>' : ""}</span><b class="num">${U.brl(i.valor)}</b></div><div class="bar" style="height:10px"><i style="width:${i.pct}%;background:${i.cor}"></i></div></div>`).join("")}</section>
         </div>
+        ${V._setores.html()}
         <section class="card section"><div class="card-h"><div><h2>Por tipo de produto</h2></div></div><div class="chart" id="chTipos"></div></section>`;
         ctx._tipos = tipos;
       } else if (aba === "rentabilidade") {
@@ -221,6 +222,7 @@ window.VIEWS = window.VIEWS || {};
     after(ctx) {
       const { id, r, params } = ctx, aba = params[0] || "";
       if (!aba) {
+        V._setores.after(ctx);
         CH.rosca(document.getElementById("dCl"), K.porClasse(id), { centro: U.state.hide ? "•••" : U.num(K.itens(id).reduce((a, x) => a + x.valor, 0) / 1000, 0) + " mil", sub: "total" });
         const t = Object.entries(ctx._tipos || {}).sort((a, b) => b[1] - a[1]);
         CH.barras(document.getElementById("chTipos"), t.map(([k, v]) => ({ rotulo: k, valores: [v] })), [{ nome: "Valor", cor: "#06377b" }], { fmtY, altura: 230 });

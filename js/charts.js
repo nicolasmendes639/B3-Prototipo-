@@ -118,5 +118,70 @@ window.CH = (function () {
     return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${d}" fill="none" stroke="${cor}" stroke-width="1.6"/></svg>`;
   }
 
-  return { linha, rosca, barras, spark };
+  /** Gráfico multinível (anéis concêntricos): raiz = {nome, valor, filhos:[{nome, valor, cor, filhos}]}.
+   * Cada nível da árvore vira um anel. opts: fmt(valor), centro, sub, onZoom(no) ao clicar num nó com filhos,
+   * onVoltar() ao clicar no centro, label (acessível). */
+  function multinivel(el, raiz, opts = {}) {
+    const S = 440, C = S / 2, R = C - 4, r0 = opts.furo || 84;
+    const prof = (n) => (n.filhos && n.filhos.length ? 1 + Math.max(...n.filhos.map(prof)) : 0);
+    const D = Math.max(1, prof(raiz)), larg = (R - r0) / D, total = raiz.valor || 1, nos = [];
+    (function anda(n, a0, nivel, pai) {
+      let a = a0;
+      (n.filhos || []).forEach((f) => {
+        const da = (f.valor / total) * Math.PI * 2;
+        nos.push({ no: f, pai, a0: a, a1: a + da, nivel });
+        anda(f, a, nivel + 1, f);
+        a += da;
+      });
+    })(raiz, -Math.PI / 2, 0, raiz);
+    const pt = (ang, rad) => `${(C + rad * Math.cos(ang)).toFixed(2)},${(C + rad * Math.sin(ang)).toFixed(2)}`;
+    const arco = (a0, a1, ri, ro) => { if (a1 - a0 > Math.PI * 2 - 1e-4) a1 = a0 + Math.PI * 2 - 1e-4; const g = a1 - a0 > Math.PI ? 1 : 0; return `M${pt(a0, ro)}A${ro},${ro} 0 ${g} 1 ${pt(a1, ro)}L${pt(a1, ri)}A${ri},${ri} 0 ${g} 0 ${pt(a0, ri)}Z`; };
+    const claro = (hex) => { const n = parseInt(hex.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 160; };
+    const corta = (t, n) => (t.length <= n ? t : n < 3 ? "" : t.slice(0, n - 1) + "…");
+    const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let s = `<svg viewBox="0 0 ${S} ${S}" width="100%" style="max-width:${S}px;display:block;margin:auto" role="img" aria-label="${opts.label || "Distribuição em níveis"}">`;
+    nos.forEach((x, i) => {
+      const ri = r0 + x.nivel * larg, ro = ri + larg, meio = (ri + ro) / 2, am = (x.a0 + x.a1) / 2, comp = (x.a1 - x.a0) * meio, zoom = x.no.filhos && x.no.filhos.length;
+      s += `<path d="${arco(x.a0, x.a1, ri + 0.8, ro)}" fill="${x.no.cor}" class="mn-f${zoom ? " zoom" : ""}" data-i="${i}" ${zoom ? `tabindex="0" role="button" aria-label="Ver ${esc(x.no.nome)} em detalhe"` : ""}/>`;
+      // rótulo: deitado quando cabe; senão na direção do raio (fatias finas); some quando não cabe nada
+      const nome = x.no.rotulo || x.no.nome, cor = claro(x.no.cor) ? "#14213d" : "#fff", fs = x.nivel === 0 ? 13 : 11;
+      const cx = C + meio * Math.cos(am), cy = C + meio * Math.sin(am);
+      // texto deitado: no alto/embaixo do anel o espaço é o comprimento do arco; nas laterais, a espessura do anel
+      const livre = Math.abs(Math.sin(am)) * Math.min(comp, 2 * meio * Math.sin(Math.min(Math.PI / 2, (x.a1 - x.a0) / 2))) + Math.abs(Math.cos(am)) * larg;
+      if (livre > nome.length * fs * 0.6 + 8 && comp > fs + 6 && larg > fs + 8 && x.a1 - x.a0 < Math.PI * 1.6) s += `<text x="${cx.toFixed(1)}" y="${(cy + fs * 0.35).toFixed(1)}" text-anchor="middle" class="mn-t" style="font-size:${fs}px;fill:${cor}">${esc(nome)}</text>`;
+      else if (x.a1 - x.a0 >= Math.PI * 1.6) s += `<text x="${C}" y="${(C - meio + fs * 0.35).toFixed(1)}" text-anchor="middle" class="mn-t" style="font-size:${fs}px;fill:${cor}">${esc(nome)}</text>`;
+      else if (comp >= fs + 1) {
+        const t = corta(nome, Math.floor((larg - 10) / (fs * 0.6))), dir = Math.cos(am) >= 0, rx = C + (ri + 5) * Math.cos(am), ry = C + (ri + 5) * Math.sin(am), deg = (am * 180) / Math.PI + (dir ? 0 : 180);
+        const ex = C + (ro - 5) * Math.cos(am), ey = C + (ro - 5) * Math.sin(am);
+        if (t) s += `<text x="${(dir ? rx : ex).toFixed(1)}" y="${(dir ? ry : ey).toFixed(1)}" dy="${fs * 0.35}" transform="rotate(${deg.toFixed(1)} ${(dir ? rx : ex).toFixed(1)} ${(dir ? ry : ey).toFixed(1)})" class="mn-t" style="font-size:${fs}px;fill:${cor}">${esc(t)}</text>`;
+      }
+    });
+    s += `<g class="mn-c${opts.onVoltar ? " volta" : ""}" ${opts.onVoltar ? 'tabindex="0" role="button" aria-label="Voltar para a carteira toda"' : ""}><circle cx="${C}" cy="${C}" r="${r0 - 4}" fill="transparent"/>${opts.onVoltar ? `<text x="${C}" y="${C - 26}" text-anchor="middle" class="mn-v">‹ Voltar</text>` : ""}<text x="${C}" y="${C + 2}" text-anchor="middle" class="donut-n">${opts.centro || ""}</text><text x="${C}" y="${C + 22}" text-anchor="middle" class="axis">${opts.sub || ""}</text></g></svg>`;
+    el.innerHTML = `<div class="mn">${s}<div class="mn-tip" role="tooltip" hidden></div></div>`;
+    const tip = el.querySelector(".mn-tip"), box = el.querySelector(".mn"), fmt = opts.fmt || ((v) => v);
+    const mostra = (p, ev) => {
+      const x = nos[+p.dataset.i];
+      tip.innerHTML = `<b>${esc(x.no.nome)}</b><span>${fmt(x.no.valor)}</span><span>${((x.no.valor / total) * 100).toFixed(1).replace(".", ",")}% ${opts.de || "do total"}${x.pai !== raiz ? ` · ${((x.no.valor / x.pai.valor) * 100).toFixed(1).replace(".", ",")}% de ${esc(x.pai.nome)}` : ""}</span>${x.no.filhos && x.no.filhos.length ? '<span class="small">Clique para ver em detalhe</span>' : ""}`;
+      tip.hidden = false;
+      const b = box.getBoundingClientRect(), r = p.getBoundingClientRect();
+      const mx = ev && ev.clientX ? ev.clientX : r.left + r.width / 2, my = ev && ev.clientY ? ev.clientY : r.top + r.height / 2;
+      tip.style.left = Math.min(b.width - tip.offsetWidth - 4, Math.max(4, mx - b.left + 14)) + "px";
+      tip.style.top = Math.max(4, my - b.top - tip.offsetHeight - 10) + "px";
+    };
+    el.querySelectorAll(".mn-f").forEach((p) => {
+      p.addEventListener("mousemove", (ev) => mostra(p, ev));
+      p.addEventListener("focus", () => mostra(p));
+      p.addEventListener("mouseleave", () => (tip.hidden = true));
+      p.addEventListener("blur", () => (tip.hidden = true));
+      if (p.classList.contains("zoom") && opts.onZoom) {
+        const vai = () => opts.onZoom(nos[+p.dataset.i].no);
+        p.addEventListener("click", vai);
+        p.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); vai(); } });
+      }
+    });
+    const c = el.querySelector(".mn-c.volta");
+    if (c) { c.addEventListener("click", opts.onVoltar); c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); opts.onVoltar(); } }); }
+  }
+
+  return { linha, rosca, barras, spark, multinivel };
 })();
